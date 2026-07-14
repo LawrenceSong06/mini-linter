@@ -29,7 +29,7 @@
 
 ## Lang 文案
 
-默认 message 和 hint 文案定义在规则上。lang JSON 文件可以按 rule id 覆盖它们：
+最终输出的 message 和 hint 必须来自 lang JSON。规则类不应定义 message 和 hint 字段。lang JSON 文件必须按 rule id 提供文案：
 
 ```json
 {
@@ -42,8 +42,8 @@
 
 新增或修改规则时，需要同步更新测试，证明：
 
-- 默认 fallback 文案可用；
-- 如果涉及自定义 lang 文案，自定义文案可用；
+- 缺少 lang 文案时会失败；
+- lang JSON 文案可以正确渲染；
 - violation 始终包含 `message` 和 `hint`。
 
 ## 内置规则要求

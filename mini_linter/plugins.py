@@ -20,14 +20,17 @@ def load_plugin_rules(root: Path, plugin_paths: tuple[str, ...]) -> list[Rule]:
         path = (root / plugin_path).resolve()
         module_name = f"mini_linter_plugin_{index}_{path.stem}"
         spec = importlib.util.spec_from_file_location(module_name, path)
+        
         if spec is None or spec.loader is None:
             raise ValueError(f"Cannot load plugin: {path}")
+        
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         for _, item in inspect.getmembers(module, inspect.isclass):
             if item.__module__ != module.__name__:
                 continue
             # 没有被 continue 的情况: 当前类是在插件文件中直接定义的类，不包含导入类。
+
             if hasattr(item, "id") and hasattr(item, "check"):
                 rules.append(item())
     return rules

@@ -17,8 +17,6 @@ class FileTooLongRule(BaseRule):
 
     id = "style.file_too_long"
     default_severity = "warning"
-    message = "File has {line_count} lines; max is {max_lines}."
-    hint = "Split this file into smaller modules with focused responsibilities."
 
     def check(self, context: RuleContext) -> list[Violation]:
         """执行文件长度检查。
@@ -28,10 +26,12 @@ class FileTooLongRule(BaseRule):
         """
         if context.is_project or context.path.suffix != ".py":
             return []
+        
         max_lines = int(context.config.rule_options(self.id).get("max_lines", 300))
         line_count = len(context.source.splitlines())
         if line_count <= max_lines:
             return []
+        
         return [self.violation(context, details={"line_count": line_count, "max_lines": max_lines})]
 
 
@@ -44,8 +44,6 @@ class FunctionTooLongRule(BaseRule):
 
     id = "style.function_too_long"
     default_severity = "warning"
-    message = "Function `{name}` has {line_count} lines; max is {max_lines}."
-    hint = "Extract smaller helper functions so the behavior is easier for agents to inspect."
 
     def check(self, context: RuleContext) -> list[Violation]:
         """执行函数长度检查。
@@ -55,14 +53,18 @@ class FunctionTooLongRule(BaseRule):
         """
         if context.is_project or context.tree is None:
             return []
+        
         max_lines = int(context.config.rule_options(self.id).get("max_lines", 50))
         violations: list[Violation] = []
         lines = context.source.splitlines()
+
         for node in ast.walk(context.tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+
                 # Python 3.8+ 提供 end_lineno；Python 3.7 使用缩进 fallback。
                 end_lineno = getattr(node, "end_lineno", None) or _function_end_lineno(lines, node)
                 line_count = end_lineno - node.lineno + 1
+
                 if line_count > max_lines:
                     violations.append(
                         self.violation(
@@ -72,6 +74,7 @@ class FunctionTooLongRule(BaseRule):
                             details={"name": node.name, "line_count": line_count, "max_lines": max_lines},
                         )
                     )
+
         return violations
 
 
@@ -84,8 +87,6 @@ class TestFileNamingRule(BaseRule):
 
     id = "style.test_file_naming"
     default_severity = "info"
-    message = "Test file `{filename}` does not follow pytest naming."
-    hint = "Rename test modules to `test_*.py` or `*_test.py` so pytest and agents can find them."
 
     def check(self, context: RuleContext) -> list[Violation]:
         """执行测试文件命名检查。
@@ -95,12 +96,15 @@ class TestFileNamingRule(BaseRule):
         """
         if context.is_project or context.path.suffix != ".py":
             return []
+        
         parts = set(context.path.relative_to(context.root).parts)
         if "tests" not in parts:
             return []
+        
         filename = context.path.name
         if filename.startswith("test_") or filename.endswith("_test.py"):
             return []
+        
         return [self.violation(context, details={"filename": filename})]
 
 
@@ -110,17 +114,22 @@ def _function_end_lineno(lines: list[str], node: ast.AST) -> int:
     输入: 源码行列表和函数 AST 节点。
     输出: 函数体最后一行的 1-based 行号。
     """
+    
     start_index = getattr(node, "lineno", 1) - 1
     base_indent = getattr(node, "col_offset", 0)
     end_lineno = start_index + 1
     for index in range(start_index + 1, len(lines)):
         line = lines[index]
+
         if not line.strip():
             end_lineno = index + 1
             continue
         # 没有被 continue 的情况: 当前行非空，需要用缩进判断是否仍在函数体内。
+
         indent = len(line) - len(line.lstrip())
         if indent <= base_indent:
             break
+
         end_lineno = index + 1
+    
     return end_lineno

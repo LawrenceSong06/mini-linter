@@ -54,6 +54,7 @@ def load_config(config_path: Path | None = None, root: Path | None = None) -> Li
     输入: 可选配置路径和项目根目录。
     输出: LinterConfig；配置文件不存在时返回默认配置。
     """
+    
     project_root = (root or Path.cwd()).resolve()
     path = (config_path or project_root / "pyproject.toml").resolve()
     if not path.exists():

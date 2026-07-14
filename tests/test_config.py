@@ -47,4 +47,18 @@ def test_invalid_fail_on_falls_back_to_error(tmp_path: Path) -> None:
     """
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text("[tool.mini_linter]\nfail_on = \"fatal\"\n", encoding="utf-8")
+
     assert load_config(pyproject).fail_on == "error"
+
+
+def test_project_default_lang_is_chinese() -> None:
+    """验证项目默认配置使用中文 lang 文件。
+
+    输入: 仓库根目录的 `pyproject.toml`。
+    输出: 断言默认 lang 路径为 `lang/zh_cn.json`。
+    """
+
+    root = Path(__file__).resolve().parents[1]
+    config = load_config(root / "pyproject.toml")
+    
+    assert config.lang == "lang/zh_cn.json"

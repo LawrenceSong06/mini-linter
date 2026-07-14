@@ -1,0 +1,30 @@
+{
+  "style.file_too_long": {
+    "message": "文件共有 {line_count} 行，超过限制 {max_lines} 行。",
+    "hint": "将该文件拆分为职责更清晰的小模块，降低单个文件的阅读和维护成本。"
+  },
+  "style.function_too_long": {
+    "message": "函数 `{name}` 共有 {line_count} 行，超过限制 {max_lines} 行。",
+    "hint": "提取小的辅助函数，让控制流更清晰，也方便 Agent 定位和修改行为。"
+  },
+  "style.test_file_naming": {
+    "message": "测试文件 `{filename}` 不符合 pytest 命名约定。",
+    "hint": "将测试文件命名为 `test_*.py` 或 `*_test.py`，确保 pytest 和 Agent 都能稳定发现测试。"
+  },
+  "imports.forbidden": {
+    "message": "禁止 import `{module}`。",
+    "hint": "移除该依赖，或将相关能力移动到允许依赖该模块的边界层中。"
+  },
+  "architecture.layers": {
+    "message": "层 `{source_layer}` 不能通过 `{module}` import 层 `{target_layer}`。",
+    "hint": "将共享逻辑移动到允许依赖的层，或有意识地更新架构层级配置。"
+  },
+  "agent.agents_guide_exists": {
+    "message": "缺少 `AGENTS.md`。",
+    "hint": "添加 `AGENTS.md`，说明项目目标、代码风格、测试要求和 Agent 工作流程。"
+  },
+  "agent.templates_exist": {
+    "message": "缺少 Agent 模板 `{template}`。",
+    "hint": "创建缺失的 `.agents/` 文件，帮助后续 Agent 理解上下文并完成 review。"
+  }
+}

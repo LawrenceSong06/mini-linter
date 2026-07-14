@@ -14,6 +14,7 @@ def built_in_rules() -> list[Rule]:
     输入: 无。
     输出: 默认规则实例列表。
     """
+    
     return [
         FileTooLongRule(),
         FunctionTooLongRule(),

@@ -1,0 +1,6 @@
+# Runtime dependency for Python <3.11 TOML parsing.
+tomli>=2; python_version < "3.11"
+
+# Test dependency. Keep Python 3.7 compatibility for Policy_Information_Service.
+pytest>=7,<8; python_version < "3.8"
+pytest>=8; python_version >= "3.8"

@@ -13,7 +13,7 @@
 - 每个功能和每条内置规则都必须有 unit test。
 - 保持面向 Agent 的 JSON-first 输出契约。
 - 每个 violation 必须同时包含 `message` 和 `hint`。
-- 新规则必须包含默认 lang fallback 文案和测试。
+- 新规则必须在 lang JSON 中提供 `message` 和 `hint` 文案，并包含对应测试。
 
 ## 代码风格
 
@@ -24,21 +24,31 @@
 - 优先使用 dataclass 和简单接口，避免大型继承树。
 - 插件加载逻辑必须隔离在 `mini_linter.plugins`。
 
+## 注释规则
+
+- 每个 Python 文件头部必须有文件元信息，要求在可读的情况下尽可能简短，包含：上次修改时间、文件设计、文件功能。
+- 每个函数、类前面必须有 docstring，简短说明函数作用、输入参数和输出参数。
+- 在逻辑复杂的地方添加解释说明。
+- 使用 `if ... else` 语句时，需要在 `else` 后注释剩下的 condition 是什么。
+- 使用 `if ...: continue` 结构后，需要在没有被 `continue` 的分支前注释什么情况会进入该分支。
+- 更新代码时必须同步检查并更新相关注释，避免注释和实现不一致。
+
 ## 测试要求
 
 - 使用 `pytest`。
 - 每条规则都需要 pass case 和 fail case。
 - CLI 行为变化时，需要测试 JSON 输出和退出码。
-- 规则文案变化时，需要测试 lang fallback 行为。
+- 规则文案变化时，需要测试 lang JSON 强制渲染行为。
 - 不允许新增没有对应 unit test 的功能。
 
 ## 修改流程
 
 1. 先阅读 `.agents/context.md`，理解仓库结构。
 2. 修改规则或插件前，先阅读 `.agents/rule-authoring.md`。
-3. 实现和测试必须一起更新。
-4. 先运行改动范围对应的 focused tests。
-5. 完成前运行完整测试套件。
+3. 实现、测试、相关注释必须一起更新。
+4. 如果用户可见行为、安装方式、命令参数、配置或规则能力变化，必须同步更新 `README.md`。
+5. 先运行改动范围对应的 focused tests。
+6. 完成前运行完整测试套件。
 
 ## Agent 边界
 

@@ -15,13 +15,20 @@ def test_cli_outputs_json_and_exit_code(tmp_path: Path, capsys) -> None:
     (tmp_path / "AGENTS.md").write_text("guide", encoding="utf-8")
     agents = tmp_path / ".agents"
     agents.mkdir()
+
     for name in ["context.md", "rule-authoring.md", "review-checklist.md", "task-template.md"]:
         (agents / name).write_text("doc", encoding="utf-8")
+        
     (tmp_path / "bad.py").write_text("import os\n", encoding="utf-8")
+    (tmp_path / "lang.json").write_text(
+        '{"imports.forbidden": {"message": "No {module}", "hint": "Remove {module}"}}',
+        encoding="utf-8",
+    )
     (tmp_path / "pyproject.toml").write_text(
         """
 [tool.mini_linter]
 paths = ["bad.py"]
+lang = "lang.json"
 fail_on = "error"
 
 [tool.mini_linter.rules."imports.forbidden"]
@@ -42,14 +49,17 @@ def test_cli_accepts_custom_lang(tmp_path: Path, capsys) -> None:
     """验证 CLI 可以使用自定义 lang JSON。
 
     输入: 临时项目、lang 文件和配置文件。
-    输出: 断言 message 和 hint 被覆盖。
+    输出: 断言 message 和 hint 由 lang JSON 提供。
     """
+
     (tmp_path / "bad.py").write_text("import os\n", encoding="utf-8")
+
     lang = tmp_path / "lang.json"
     lang.write_text(
         '{"imports.forbidden": {"message": "No {module}", "hint": "Remove {module}"}}',
         encoding="utf-8",
     )
+
     config = tmp_path / "pyproject.toml"
     config.write_text(
         """
@@ -70,7 +80,43 @@ enabled = false
     )
 
     main(["check", "--config", str(config), "--lang", str(lang)])
+    
     output = json.loads(capsys.readouterr().out)
 
     assert output["violations"][0]["message"] == "No os"
     assert output["violations"][0]["hint"] == "Remove os"
+
+
+def test_cli_help_outputs_usage(capsys) -> None:
+    """验证顶层 `-h` 会输出帮助信息。
+
+    输入: `-h` 参数和 pytest capsys。
+    输出: 断言 argparse 以 0 退出并包含 check 子命令。
+    """
+
+    try:
+        main(["-h"])
+    except SystemExit as exc:
+        assert exc.code == 0
+
+    output = capsys.readouterr().out
+
+    assert "usage: mini-linter" in output
+    assert "check" in output
+
+
+def test_cli_check_help_outputs_arguments(capsys) -> None:
+    """验证 `check -h` 会输出子命令参数说明。
+
+    输入: `check -h` 参数和 pytest capsys。
+    输出: 断言 argparse 以 0 退出并包含关键参数。
+    """
+    
+    try:
+        main(["check", "-h"])
+    except SystemExit as exc:
+        assert exc.code == 0
+
+    output = capsys.readouterr().out
+    assert "--config" in output
+    assert "--fail-on" in output

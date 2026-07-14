@@ -15,7 +15,7 @@ SEVERITY_ORDER: dict[Severity, int] = {"info": 0, "warning": 1, "error": 2}
 class Violation:
     """表示一条 lint 发现。
 
-    输入: 规则 id、严重级别、位置、message、hint 和 details。
+    输入: 规则 id、严重级别、位置、最终 message、最终 hint 和 details。
     输出: 可通过 `to_dict` 转为 JSON 友好的字典。
     """
 
@@ -103,9 +103,12 @@ class LintResult:
         输出: 包含 error、warning、info 和 total 的计数字典。
         """
         counts = {"error": 0, "warning": 0, "info": 0}
+        
         for item in self.violations:
             counts[item.severity] += 1
+
         counts["total"] = len(self.violations)
+        
         return counts
 
     def to_dict(self) -> dict[str, Any]:
@@ -124,14 +127,12 @@ class LintResult:
 class Rule:
     """规则接口基类。
 
-    输入: 子类提供 id、severity、文案和 check 实现。
+    输入: 子类提供 id、severity 和 check 实现。
     输出: `check` 返回 violation 列表。
     """
 
     id: str
     default_severity: Severity
-    message: str
-    hint: str
 
     def check(self, context: RuleContext) -> list[Violation]:
         """执行规则检查。

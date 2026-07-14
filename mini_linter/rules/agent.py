@@ -15,8 +15,6 @@ class AgentsGuideExistsRule(BaseRule):
 
     id = "agent.agents_guide_exists"
     default_severity = "error"
-    message = "`AGENTS.md` is missing."
-    hint = "Add `AGENTS.md` with project goals, code style, test expectations, and agent workflow."
 
     def check(self, context: RuleContext) -> list[Violation]:
         """执行 AGENTS.md 存在性检查。
@@ -24,10 +22,13 @@ class AgentsGuideExistsRule(BaseRule):
         输入: RuleContext。
         输出: 缺失文件 violation 列表。
         """
+
         if not context.is_project:
             return []
+        
         if (context.root / "AGENTS.md").exists():
             return []
+        
         return [self.violation(context, path=context.root / "AGENTS.md")]
 
 
@@ -40,8 +41,6 @@ class AgentsTemplatesExistRule(BaseRule):
 
     id = "agent.templates_exist"
     default_severity = "error"
-    message = "Agent template `{template}` is missing."
-    hint = "Create the missing `.agents/` file so future agents can understand and review changes."
     required = (
         ".agents/context.md",
         ".agents/rule-authoring.md",
@@ -55,11 +54,15 @@ class AgentsTemplatesExistRule(BaseRule):
         输入: RuleContext。
         输出: 缺失模板 violation 列表。
         """
+
         if not context.is_project:
             return []
+        
         violations: list[Violation] = []
         for template in self.required:
             path = context.root / template
+
             if not path.exists():
                 violations.append(self.violation(context, path=path, details={"template": template}))
+                
         return violations

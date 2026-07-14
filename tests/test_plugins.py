@@ -15,8 +15,10 @@ def test_loads_and_runs_local_plugin_rule(tmp_path: Path) -> None:
     (tmp_path / "AGENTS.md").write_text("guide", encoding="utf-8")
     agents = tmp_path / ".agents"
     agents.mkdir()
+
     for name in ["context.md", "rule-authoring.md", "review-checklist.md", "task-template.md"]:
         (agents / name).write_text("doc", encoding="utf-8")
+
     (tmp_path / "sample.py").write_text("x = 1\n", encoding="utf-8")
     (tmp_path / "plugin_rules.py").write_text(
         """
@@ -31,8 +33,6 @@ class DemoPluginRule(BaseRule):
 
     id = "plugin.demo"
     default_severity = "warning"
-    message = "Plugin saw {filename}."
-    hint = "Use this pattern for local custom rules."
 
     def check(self, context):
         \"\"\"执行测试插件检查。
@@ -46,7 +46,18 @@ class DemoPluginRule(BaseRule):
 """,
         encoding="utf-8",
     )
-    config = LinterConfig(root=tmp_path, paths=("sample.py",), plugins=("plugin_rules.py",), fail_on="warning")
+    (tmp_path / "lang.json").write_text(
+        '{"plugin.demo": {"message": "Plugin saw {filename}.", "hint": "Use this pattern for local custom rules."}}',
+        encoding="utf-8",
+    )
+    
+    config = LinterConfig(
+        root=tmp_path,
+        paths=("sample.py",),
+        lang="lang.json",
+        plugins=("plugin_rules.py",),
+        fail_on="warning",
+    )
 
     result = run_linter(config)
 

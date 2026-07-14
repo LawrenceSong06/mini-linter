@@ -11,7 +11,10 @@ requires-python = ">=3.7"
 dependencies = ["tomli>=2; python_version < '3.11'"]
 
 [project.optional-dependencies]
-test = ["pytest>=8"]
+test = [
+  "pytest>=7,<8; python_version < '3.8'",
+  "pytest>=8; python_version >= '3.8'",
+]
 
 [project.scripts]
 mini-linter = "mini_linter.cli:main"
@@ -23,7 +26,7 @@ pythonpath = ["."]
 [tool.mini_linter]
 paths = ["mini_linter", "tests"]
 exclude = [".git", "__pycache__", ".pytest_cache", "build", "dist"]
-lang = "lang/en.json"
+lang = "lang/zh_cn.json"
 plugins = []
 fail_on = "error"
 

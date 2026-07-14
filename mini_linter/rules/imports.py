@@ -19,8 +19,6 @@ class ForbiddenImportRule(BaseRule):
 
     id = "imports.forbidden"
     default_severity = "error"
-    message = "Import `{module}` is forbidden."
-    hint = "Replace this dependency or move the behavior behind an approved boundary."
 
     def check(self, context: RuleContext) -> list[Violation]:
         """执行禁用 import 检查。
@@ -30,9 +28,11 @@ class ForbiddenImportRule(BaseRule):
         """
         if context.is_project or context.tree is None:
             return []
+        
         modules = set(context.config.rule_options(self.id).get("modules", []))
         if not modules:
             return []
+        
         violations: list[Violation] = []
         for node in ast.walk(context.tree):
             imported = _imported_module(node)
@@ -57,8 +57,6 @@ class LayerImportBoundaryRule(BaseRule):
 
     id = "architecture.layers"
     default_severity = "error"
-    message = "Layer `{source_layer}` may not import layer `{target_layer}` through `{module}`."
-    hint = "Move shared behavior to an allowed layer or update the architecture configuration intentionally."
 
     def check(self, context: RuleContext) -> list[Violation]:
         """执行层级 import 边界检查。
@@ -68,23 +66,31 @@ class LayerImportBoundaryRule(BaseRule):
         """
         if context.is_project or context.tree is None:
             return []
+        
         layers = list(context.config.architecture.get("layers", []))
         if not layers:
             return []
+        
         source_layer = _layer_for_path(context.root, context.path, layers)
         if source_layer is None:
             return []
+        
         allowed = set(source_layer.get("may_import", [])) | {source_layer["name"]}
         violations: list[Violation] = []
+
         for node in ast.walk(context.tree):
             module = _imported_module(node)
+
             if not module:
                 continue
             # 没有被 continue 的情况: 当前 AST 节点是可解析的 import。
+
             target_path = _module_to_path(context.root, module, context.files)
+
             if target_path is None:
                 continue
             # 没有被 continue 的情况: import 指向项目内可定位的 Python 文件。
+
             target_layer = _layer_for_path(context.root, target_path, layers)
             if target_layer is None or target_layer["name"] in allowed:
                 continue
@@ -134,11 +140,13 @@ def _layer_for_path(root: Path, path: Path, layers: list[dict[str, object]]) -> 
     输入: 项目根目录、文件路径和层级配置。
     输出: 匹配到的 layer 字典；未匹配时返回 None。
     """
+
     relative = path.relative_to(root).as_posix()
     for layer in layers:
         patterns = layer.get("paths", [])
         if isinstance(patterns, list) and any(fnmatch.fnmatch(relative, pattern) for pattern in patterns):
             return layer
+    
     return None
 
 
@@ -148,14 +156,18 @@ def _module_to_path(root: Path, module: str, files: tuple[Path, ...]) -> Path | 
     输入: 项目根目录、模块名和已发现文件列表。
     输出: 匹配的 Python 文件路径；外部或相对 import 返回 None。
     """
+
     if module.startswith("."):
         return None
+    
     module_path = module.replace(".", "/")
     candidates = {
         root / f"{module_path}.py",
         root / module_path / "__init__.py",
     }
+
     for file_path in files:
         if file_path in candidates:
             return file_path
+        
     return None

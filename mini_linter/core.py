@@ -19,6 +19,7 @@ def run_linter(config: LinterConfig, paths: tuple[str, ...] = (), lang: LangCata
     输入: LinterConfig、可选扫描路径和可选 lang catalog。
     输出: 聚合后的 LintResult。
     """
+
     files = tuple(_discover_python_files(config, paths or config.paths))
     catalog = lang or LangCatalog.load(_lang_path(config))
     rules = _enabled_rules([*built_in_rules(), *load_plugin_rules(config.root, config.plugins)], config)
@@ -34,6 +35,7 @@ def run_linter(config: LinterConfig, paths: tuple[str, ...] = (), lang: LangCata
         files=files,
         is_project=True,
     )
+
     for rule in rules:
         violations.extend(rule.check(project_context))
 
@@ -41,10 +43,12 @@ def run_linter(config: LinterConfig, paths: tuple[str, ...] = (), lang: LangCata
         source = file_path.read_text(encoding="utf-8")
         tree = _parse_python(source)
         context = RuleContext(config.root, file_path, source, tree, config, files)
+
         for rule in rules:
             violations.extend(rule.check(context))
 
     rendered = tuple(catalog.apply(item) for item in violations)
+
     return LintResult(violations=rendered, fail_on=config.fail_on)
 
 
@@ -64,14 +68,17 @@ def _discover_python_files(config: LinterConfig, paths: tuple[str, ...]) -> list
     输出: 去重、排序后的 `.py` 文件列表。
     """
     files: list[Path] = []
+
     for entry in paths:
         path = (config.root / entry).resolve()
+
         if path.is_file() and path.suffix == ".py" and not _excluded(config, path):
             files.append(path)
         elif path.is_dir():
             for child in path.rglob("*.py"):
                 if not _excluded(config, child):
                     files.append(child)
+
     return sorted(set(files))
 
 
@@ -82,6 +89,7 @@ def _excluded(config: LinterConfig, path: Path) -> bool:
     输出: 匹配 exclude pattern 或目录名时返回 True。
     """
     relative = path.relative_to(config.root).as_posix()
+    
     return any(fnmatch.fnmatch(relative, pattern) or pattern in path.parts for pattern in config.exclude)
 
 
