@@ -1,0 +1,68 @@
+"""上次修改: 2026-07-14; 设计: 文案覆盖层; 功能: 加载 lang JSON 并渲染 violation 文案。"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from mini_linter.models import Violation
+
+
+@dataclass(frozen=True)
+class LangCatalog:
+    """保存按 rule id 索引的自定义文案。
+
+    输入: lang JSON 解析后的 entries。
+    输出: 可对 violation 应用 message 和 hint 覆盖。
+    """
+
+    entries: dict[str, dict[str, str]]
+
+    @classmethod
+    def load(cls, path: Path | None) -> "LangCatalog":
+        """加载 lang JSON 文件。
+
+        输入: 可选 JSON 文件路径。
+        输出: LangCatalog；路径为空或不存在时返回空 catalog。
+        """
+        if path is None or not path.exists():
+            return cls(entries={})
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        entries = {key: value for key, value in raw.items() if isinstance(value, dict)}
+        return cls(entries=entries)
+
+    def apply(self, violation: Violation) -> Violation:
+        """将自定义文案应用到 violation。
+
+        输入: 原始 violation。
+        输出: 文案被覆盖后的 violation；没有配置时返回原对象。
+        """
+        entry = self.entries.get(violation.rule_id)
+        if not entry:
+            return violation
+        message = _render(entry.get("message", violation.message), violation.details)
+        hint = _render(entry.get("hint", violation.hint), violation.details)
+        return Violation(
+            rule_id=violation.rule_id,
+            severity=violation.severity,
+            path=violation.path,
+            line=violation.line,
+            column=violation.column,
+            message=message,
+            hint=hint,
+            details=violation.details,
+        )
+
+
+def _render(template: str, details: dict[str, Any]) -> str:
+    """使用 violation details 渲染模板。
+
+    输入: 模板字符串和 details。
+    输出: 渲染后的字符串；缺少字段时保留原模板。
+    """
+    try:
+        return template.format(**details)
+    except KeyError:
+        return template

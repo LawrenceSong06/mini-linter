@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mini-linter"
+version = "0.1.0"
+description = "A compact Python linter for agent-driven projects."
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = ["tomli>=2; python_version < '3.11'"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+mini-linter = "mini_linter.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.mini_linter]
+paths = ["mini_linter", "tests"]
+exclude = [".git", "__pycache__", ".pytest_cache", "build", "dist"]
+lang = "lang/en.json"
+plugins = []
+fail_on = "error"
+
+[tool.mini_linter.rules."style.file_too_long"]
+enabled = true
+max_lines = 300
+
+[tool.mini_linter.rules."style.function_too_long"]
+enabled = true
+max_lines = 50
+
+[tool.mini_linter.rules."imports.forbidden"]
+enabled = true
+modules = []
+
+[tool.mini_linter.rules."architecture.layers"]
+enabled = true
+
+[[tool.mini_linter.architecture.layers]]
+name = "core"
+paths = ["mini_linter/*.py"]
+may_import = ["rules"]
+
+[[tool.mini_linter.architecture.layers]]
+name = "rules"
+paths = ["mini_linter/rules/*.py"]
+may_import = ["core"]
