@@ -12,7 +12,6 @@ from mini_linter.models import LintResult, Rule, RuleContext, Violation
 from mini_linter.plugins import load_plugin_rules
 from mini_linter.rules import built_in_rules
 
-
 def run_linter(config: LinterConfig, paths: tuple[str, ...] = (), lang: LangCatalog | None = None) -> LintResult:
     """执行一次 lint 检查。
 
@@ -112,5 +111,8 @@ def _lang_path(config: LinterConfig) -> Path | None:
     输出: 绝对路径；未配置 lang 时返回 None。
     """
     if not config.lang:
-        return None
-    return (config.root / config.lang).resolve()
+        return Path(__file__).resolve().parent / "lang" / "zh_cn.json"
+    configured = Path(config.lang)
+    if configured.parts == ("lang", "zh_cn.json") or config.lang == "zh_cn.json":
+        return Path(__file__).resolve().parent / "lang" / "zh_cn.json"
+    return (config.root / configured).resolve()

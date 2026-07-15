@@ -14,19 +14,30 @@ dependencies = ["tomli>=2; python_version < '3.11'"]
 test = [
   "pytest>=7,<8; python_version < '3.8'",
   "pytest>=8; python_version >= '3.8'",
+  "pytest-cov>=3,<5; python_version < '3.8'",
+  "pytest-cov>=5; python_version >= '3.8'",
 ]
 
 [project.scripts]
 mini-linter = "mini_linter.cli:main"
 
+[tool.setuptools.packages.find]
+include = ["mini_linter*"]
+
+[tool.setuptools.package-data]
+mini_linter = ["lang/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = ["--cov=mini_linter", "--cov-report=term-missing"]
+
+# mini_linter config
 
 [tool.mini_linter]
 paths = ["mini_linter", "tests"]
-exclude = [".git", "__pycache__", ".pytest_cache", "build", "dist"]
-lang = "lang/zh_cn.json"
+exclude = [".git", "__pycache__", ".pytest_cache", "build", "dist", ".venv"]
+lang = "zh_cn.json"
 plugins = []
 fail_on = "error"
 

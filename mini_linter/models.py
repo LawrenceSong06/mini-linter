@@ -1,4 +1,12 @@
-"""上次修改: 2026-07-14; 设计: 轻量数据模型; 功能: 定义规则输入、输出和结果序列化。"""
+"""
+    上次修改: 2026-07-14-22:05; 
+    上次修改内容: 修改 to_dict() 函数的返回格式, 使其更适合人类阅读
+    上次修改者: Lawrence Song
+    
+    设计: 轻量数据模型; 
+    功能: 定义规则输入、输出和结果序列化。
+    文件创建者: Agent Joe 
+"""
 
 from __future__ import annotations
 
@@ -37,9 +45,7 @@ class Violation:
         return {
             "rule_id": self.rule_id,
             "severity": self.severity,
-            "path": self.path,
-            "line": self.line,
-            "column": self.column,
+            "location": f"{self.path}" + (f":{self.line}:{self.column}" if self.line > 0 else ""),
             "message": self.message,
             "hint": self.hint,
             "details": self.details,

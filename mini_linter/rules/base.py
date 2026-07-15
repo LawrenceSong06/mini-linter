@@ -1,4 +1,12 @@
-"""上次修改: 2026-07-14; 设计: 规则基础工具; 功能: 提供不含文案的 violation 构造。"""
+"""
+    上次修改: 2026-07-14-21:54; 
+    上次修改内容: 将 violation 的 line 和 column 默认值设置为 -1
+    上次修改者: Lawrence Song
+
+    设计: 规则基础工具; 
+    功能: 提供不含文案的 violation 构造。
+    文件创建者: Agent Joe 
+"""
 
 from __future__ import annotations
 
@@ -31,8 +39,8 @@ class BaseRule:
         context: RuleContext,
         *,
         path: Path | None = None,
-        line: int = 1,
-        column: int = 1,
+        line: int = -1, # -1 表示文件级violation
+        column: int = -1, # -1 表示文件级violation
         details: dict[str, Any] | None = None,
         severity: Severity | None = None,
     ) -> Violation:

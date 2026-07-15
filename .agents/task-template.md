@@ -24,7 +24,7 @@
 ## 验证
 
 - 对改动模块运行 focused pytest tests。
-- 最终交付前运行完整 pytest suite。
+- 最终交付前运行完整 pytest suite，并确认 coverage 输出正常。
 
 ## 交付说明
 

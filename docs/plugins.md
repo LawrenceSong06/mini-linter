@@ -9,7 +9,7 @@
 ```toml
 [tool.mini_linter]
 paths = ["."]
-lang = "lang/zh_cn.json"
+lang = "zh_cn.json"
 plugins = ["tools/lint_rules.py"]
 fail_on = "error"
 ```

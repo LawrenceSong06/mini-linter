@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from mini_linter.config import LinterConfig
+from mini_linter.core import _lang_path
 from mini_linter.core import run_linter
 from mini_linter.lang import LangCatalog
 from mini_linter.models import Violation
@@ -43,10 +44,10 @@ def test_lang_catalog_requires_message_and_hint(tmp_path: Path) -> None:
         LangCatalog.load(tmp_path / "missing.json").apply(violation)
 
 
-def test_run_linter_requires_lang_for_output_violation(tmp_path: Path) -> None:
-    """验证 run_linter 输出 violation 时必须有 lang 文案。
+def test_run_linter_rejects_incomplete_lang_for_output_violation(tmp_path: Path) -> None:
+    """验证 run_linter 拒绝不完整 lang 文案。
 
-    输入: 会触发禁止 import 的临时项目，但不提供 lang。
+    输入: 会触发禁止 import 的临时项目，并提供缺少该 rule id 的 lang。
     输出: 断言缺少 rule id 文案会抛出 ValueError。
     """
     (tmp_path / "AGENTS.md").write_text("guide", encoding="utf-8")
@@ -55,9 +56,15 @@ def test_run_linter_requires_lang_for_output_violation(tmp_path: Path) -> None:
 
     for name in ["context.md", "rule-authoring.md", "review-checklist.md", "task-template.md"]:
         (agents / name).write_text("doc", encoding="utf-8")
-        
+
     (tmp_path / "bad.py").write_text("import os\n", encoding="utf-8")
-    config = LinterConfig(root=tmp_path, paths=("bad.py",), rules={"imports.forbidden": {"modules": ["os"]}})
+    (tmp_path / "lang.json").write_text("{}", encoding="utf-8")
+    config = LinterConfig(
+        root=tmp_path,
+        paths=("bad.py",),
+        lang="lang.json",
+        rules={"imports.forbidden": {"modules": ["os"]}},
+    )
 
     with pytest.raises(ValueError, match="imports.forbidden"):
         run_linter(config)
@@ -66,10 +73,10 @@ def test_run_linter_requires_lang_for_output_violation(tmp_path: Path) -> None:
 def test_default_chinese_lang_file_renders_builtin_rule() -> None:
     """验证默认中文 lang 文件可渲染内置规则文案。
 
-    输入: 仓库中的 `lang/zh_cn.json` 和内置规则 violation。
+    输入: 包内的 `mini_linter/lang/zh_cn.json` 和内置规则 violation。
     输出: 断言中文 message 和 hint 被应用。
     """
-    lang = Path(__file__).resolve().parents[1] / "lang" / "zh_cn.json"
+    lang = Path(__file__).resolve().parents[1] / "mini_linter" / "lang" / "zh_cn.json"
     violation = Violation(
         "style.file_too_long",
         "warning",
@@ -90,12 +97,25 @@ def test_default_chinese_lang_file_renders_builtin_rule() -> None:
 def test_default_chinese_lang_file_covers_all_builtin_rules() -> None:
     """验证默认中文 lang 文件覆盖所有内置规则。
 
-    输入: 内置规则列表和 `lang/zh_cn.json`。
+    输入: 内置规则列表和 `mini_linter/lang/zh_cn.json`。
     输出: 断言每个 rule id 都有 message 和 hint。
     """
-    lang = LangCatalog.load(Path(__file__).resolve().parents[1] / "lang" / "zh_cn.json")
+    lang = LangCatalog.load(Path(__file__).resolve().parents[1] / "mini_linter" / "lang" / "zh_cn.json")
     for rule in built_in_rules():
         entry = lang.entries.get(rule.id)
         assert entry is not None, rule.id
         assert entry.get("message"), rule.id
         assert entry.get("hint"), rule.id
+
+
+def test_default_lang_path_points_inside_package(tmp_path: Path) -> None:
+    """验证默认 lang 路径指向包内资源。
+
+    输入: 未配置 lang 的 LinterConfig。
+    输出: 断言解析到 `mini_linter/lang/zh_cn.json`。
+    """
+    path = _lang_path(LinterConfig(root=tmp_path))
+
+    assert path is not None
+    assert path.parts[-3:] == ("mini_linter", "lang", "zh_cn.json")
+    assert path.exists()

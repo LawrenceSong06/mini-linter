@@ -2,20 +2,28 @@
 
 一个面向 Agent 驱动项目的轻量 Python linter。
 
-`mini-linter` 用于检查 Python 代码风格、import 依赖、架构边界和 Agent 协作文件。项目刻意保持小而清晰：运行时代码优先使用 Python 标准库，Python <3.11 使用 `tomli` 作为 TOML 解析兼容依赖，测试使用 `pytest`。
+`mini-linter` 用于检查 Python 代码风格、import 依赖、架构边界和 Agent 协作文件。项目刻意保持小而清晰：运行时代码优先使用 Python 标准库，Python <3.11 使用 `tomli` 作为 TOML 解析兼容依赖，测试使用 `pytest` 和 `pytest-cov`。
 
 ## 安装
 
-在项目根目录执行：
+项目推荐使用 `venv`
+
+在项目根目录创建虚拟环境：
+
+```powershell
+python -m venv .venv
+```
+
+激活虚拟环境：
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+安装项目：
 
 ```powershell
 pip install .
-```
-
-也可以直接安装项目所需依赖：
-
-```powershell
-pip install -r requirements.txt
 ```
 
 如果需要运行测试：
@@ -31,6 +39,27 @@ pip install -e ".[test]"
 ```
 
 安装后会提供 `mini-linter` 命令。
+
+## 运行测试和覆盖率
+
+项目已集成 coverage。安装测试依赖后，在项目根目录运行：
+
+```powershell
+python -m pytest
+```
+
+默认会输出 `mini_linter` 包的覆盖率和未覆盖行。当前 pytest 配置等价于：
+
+```powershell
+python -m pytest --cov=mini_linter --cov-report=term-missing
+```
+
+如果不想安装当前项目，只想在源码目录里运行测试，也需要先在 venv 中安装测试依赖：
+
+```powershell
+pip install ".[test]"
+python -m pytest
+```
 
 ## 快速使用
 
@@ -97,7 +126,7 @@ mini-linter check --config pyproject.toml
 使用自定义 lang 文案：
 
 ```powershell
-mini-linter check . --lang lang/zh_cn.json
+mini-linter check . --lang mini_linter/lang/zh_cn.json
 ```
 
 把 warning 也作为失败条件：
@@ -114,7 +143,7 @@ mini-linter check . --fail-on warning
 [tool.mini_linter]
 paths = ["mini_linter", "tests"]
 exclude = [".git", "__pycache__", ".pytest_cache", "build", "dist"]
-lang = "lang/zh_cn.json"
+lang = "zh_cn.json"
 plugins = []
 fail_on = "error"
 

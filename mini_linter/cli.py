@@ -1,4 +1,12 @@
-"""上次修改: 2026-07-14; 设计: CLI 入口; 功能: 解析 check 命令并输出 JSON 结果。"""
+"""
+    上次修改: 2026-07-14-21:58; 
+    上次修改内容: 将结果打印的 sort_keys 改为 False, ensure_ascii 设置为 False
+    上次修改者: Lawrence Song
+    
+    设计: CLI 入口; 
+    功能: 解析 check 命令并输出 JSON 结果。
+    文件创建者: Agent Joe 
+"""
 
 from __future__ import annotations
 
@@ -50,9 +58,9 @@ def main(argv: list[str] | None = None) -> int:
     else:
         # else 条件: 用户没有显式传入 --lang，由 core 根据配置加载 lang。
         lang = None
-
+        
     result = run_linter(config, tuple(args.paths), lang)
-    print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    print(json.dumps(result.to_dict(), indent=2, sort_keys=False, ensure_ascii=False))
 
     if result.ok:
         return 0

@@ -12,6 +12,7 @@
 ## 测试
 
 - 新行为有 pytest 覆盖。
+- 完整测试会输出 `mini_linter` 覆盖率。
 - 每条新规则至少有一个 pass case 和一个 fail case。
 - CLI 行为变化需要包含输出和退出码测试。
 - 涉及规则文案时，需要覆盖 lang JSON 强制渲染行为。

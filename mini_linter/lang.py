@@ -1,4 +1,8 @@
-"""上次修改: 2026-07-14; 设计: 强制文案层; 功能: 加载 lang JSON 并强制渲染 violation 文案。"""
+"""
+    上次修改: 2026-07-14; 
+    设计: 强制文案层; 
+    功能: 加载 lang JSON 并强制渲染 violation 文案。
+"""
 
 from __future__ import annotations
 

@@ -82,7 +82,7 @@ class TestFileNamingRule(BaseRule):
     """检查 tests 目录下的测试文件命名。
 
     输入: RuleContext。
-    输出: 不符合 pytest 命名约定时返回 violation。
+    输出: 不符合 tests 命名约定时返回 violation。
     """
 
     id = "style.test_file_naming"

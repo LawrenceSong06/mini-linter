@@ -5,11 +5,11 @@
   },
   "style.function_too_long": {
     "message": "函数 `{name}` 共有 {line_count} 行，超过限制 {max_lines} 行。",
-    "hint": "提取小的辅助函数，让控制流更清晰，也方便 Agent 定位和修改行为。"
+    "hint": "提取小的辅助函数，让控制流更清晰。"
   },
   "style.test_file_naming": {
-    "message": "测试文件 `{filename}` 不符合 pytest 命名约定。",
-    "hint": "将测试文件命名为 `test_*.py` 或 `*_test.py`，确保 pytest 和 Agent 都能稳定发现测试。"
+    "message": "测试文件 `{filename}` 不符合命名约定。",
+    "hint": "将测试文件命名为 `test_*.py`。"
   },
   "imports.forbidden": {
     "message": "禁止 import `{module}`。",
