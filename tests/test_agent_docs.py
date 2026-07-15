@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: Agent 文档测试; 功能: 验证协作文档存在且包含关键要求。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Agent document tests
+文件功能: Verify collaboration docs contain required guidance.
+文件创建者: Agent Joe
+"""
 
 from pathlib import Path
 

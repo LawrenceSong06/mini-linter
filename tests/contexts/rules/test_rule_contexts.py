@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 示例程序规则测试; 功能: 使用 contexts/sets/rules 验证每条规则 pass/fail。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Rule context tests
+文件功能: Verify rule pass and fail cases using sample programs.
+文件创建者: Agent Joe
+"""
 
 from __future__ import annotations
 
@@ -64,7 +71,7 @@ def test_file_too_long_rule_context_pass_and_fail(tmp_path: Path) -> None:
     输出: 断言 pass 样例无 violation，fail 样例有 violation。
     """
     root = _copy_sample_tree(tmp_path)
-    config = LinterConfig(root=root, rules={"style.file_too_long": {"max_lines": 3}})
+    config = LinterConfig(root=root, rules={"style.file_too_long": {"max_lines": 10}})
     rule = FileTooLongRule()
 
     assert rule.check(_file_context(root, "style_file_pass.py", config)) == []

@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 代码风格规则; 功能: 检查文件长度、函数长度和测试命名。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Style rules
+文件功能: Check file length, function length, and test file naming.
+文件创建者: Agent Joe
+"""
 
 from __future__ import annotations
 

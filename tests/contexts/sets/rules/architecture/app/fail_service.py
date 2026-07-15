@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 架构规则样例; 功能: 提供不允许的跨层 import。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Architecture sample
+文件功能: Provide a disallowed layer import.
+文件创建者: Agent Joe
+"""
 
 import infra.db
 

@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 函数长度规则样例; 功能: 提供会触发函数过长规则的程序。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Function length sample
+文件功能: Provide a program that violates function length.
+文件创建者: Agent Joe
+"""
 
 
 def long_function() -> int:

@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: lint 调度核心; 功能: 发现文件、运行规则并聚合结果。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Lint orchestration core
+文件功能: Discover files, run rules, and aggregate results.
+文件创建者: Agent Joe
+"""
 
 from __future__ import annotations
 

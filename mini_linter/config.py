@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 配置读取层; 功能: 从 pyproject.toml 构造 linter 配置。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Configuration reader
+文件功能: Build linter configuration from pyproject.toml.
+文件创建者: Agent Joe
+"""
 
 from __future__ import annotations
 

@@ -1,11 +1,10 @@
 """
-    上次修改: 2026-07-14-22:05; 
-    上次修改内容: 修改 to_dict() 函数的返回格式, 使其更适合人类阅读
-    上次修改者: Lawrence Song
-    
-    设计: 轻量数据模型; 
-    功能: 定义规则输入、输出和结果序列化。
-    文件创建者: Agent Joe 
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Data models
+文件功能: Define rule input, violation output, and result serialization.
+文件创建者: Agent Joe
 """
 
 from __future__ import annotations

@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 插件加载边界; 功能: 从可信本地 Python 文件加载规则类。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Plugin loading boundary
+文件功能: Load trusted local plugin rule classes.
+文件创建者: Agent Joe
+"""
 
 from __future__ import annotations
 

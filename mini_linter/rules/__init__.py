@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 内置规则注册表; 功能: 汇总默认启用的规则实例。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Built-in rule registry
+文件功能: Return built-in rule instances.
+文件创建者: Agent Joe
+"""
 
 from __future__ import annotations
 

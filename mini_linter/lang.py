@@ -1,7 +1,10 @@
 """
-    上次修改: 2026-07-14; 
-    设计: 强制文案层; 
-    功能: 加载 lang JSON 并强制渲染 violation 文案。
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Required language catalog
+文件功能: Load lang JSON and render violation text.
+文件创建者: Agent Joe
 """
 
 from __future__ import annotations

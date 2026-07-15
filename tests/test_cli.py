@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: CLI 测试; 功能: 验证 JSON 输出、退出码和 lang 参数。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: CLI tests
+文件功能: Verify JSON output, exit codes, help, and lang behavior.
+文件创建者: Agent Joe
+"""
 
 import json
 from pathlib import Path

@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: Agent 协作规则; 功能: 检查 Agent 指南和模板文件。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Agent collaboration rules
+文件功能: Check AGENTS.md and .agents templates.
+文件创建者: Agent Joe
+"""
 
 from __future__ import annotations
 

@@ -1,11 +1,10 @@
 """
-    上次修改: 2026-07-14-21:54; 
-    上次修改内容: 将 violation 的 line 和 column 默认值设置为 -1
-    上次修改者: Lawrence Song
-
-    设计: 规则基础工具; 
-    功能: 提供不含文案的 violation 构造。
-    文件创建者: Agent Joe 
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Rule base helpers
+文件功能: Construct violations without message or hint text.
+文件创建者: Agent Joe
 """
 
 from __future__ import annotations

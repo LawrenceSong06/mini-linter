@@ -1,4 +1,11 @@
-"""上次修改: 2026-07-14; 设计: 插件测试; 功能: 验证可信本地插件规则加载和执行。"""
+"""
+上次修改时间: 2026-07-14-22:55
+上次修改内容: Restore UTF-8 file header metadata
+上次修改者: Agent Joe
+文件设计: Plugin tests
+文件功能: Verify trusted local plugin loading and execution.
+文件创建者: Agent Joe
+"""
 
 from pathlib import Path
 
