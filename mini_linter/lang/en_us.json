@@ -1,0 +1,30 @@
+{
+  "style.file_too_long": {
+    "message": "This file has {line_count} lines, exceeding the limit of {max_lines} lines.",
+    "hint": "Split this file into smaller modules with clearer responsibilities to reduce reading and maintenance cost."
+  },
+  "style.function_too_long": {
+    "message": "Function `{name}` has {line_count} lines, exceeding the limit of {max_lines} lines.",
+    "hint": "Extract small helper functions to make the control flow clearer."
+  },
+  "style.test_file_naming": {
+    "message": "Test file `{filename}` does not follow the naming convention.",
+    "hint": "Name test files as `test_*.py`."
+  },
+  "imports.forbidden": {
+    "message": "Importing `{module}` is forbidden.",
+    "hint": "Remove this dependency, or move the related capability into a boundary layer that is allowed to depend on this module."
+  },
+  "architecture.layers": {
+    "message": "Layer `{source_layer}` cannot import layer `{target_layer}` through `{module}`.",
+    "hint": "Move shared logic to a layer that is allowed to be imported, or intentionally update the architecture layer configuration."
+  },
+  "agent.agents_guide_exists": {
+    "message": "`AGENTS.md` is missing.",
+    "hint": "Add `AGENTS.md` to describe the project goals, code style, testing requirements, and Agent workflow."
+  },
+  "agent.templates_exist": {
+    "message": "Agent template `{template}` is missing.",
+    "hint": "Create the missing `.agents/` file to help future Agents understand the context and complete reviews."
+  }
+}
