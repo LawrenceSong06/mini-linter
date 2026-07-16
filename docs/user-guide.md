@@ -22,7 +22,32 @@
 
 ## 安装
 
-建议在项目根目录使用虚拟环境安装。
+普通用户可以直接从 GitHub 安装：
+
+```powershell
+pip install "git+https://github.com/LawrenceSong06/mini-linter.git"
+```
+
+升级到 GitHub 最新版本：
+
+```powershell
+pip install --upgrade --force-reinstall "git+https://github.com/LawrenceSong06/mini-linter.git"
+```
+
+如果仓库已经创建了版本 tag，也可以安装指定版本：
+
+```powershell
+pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.1"
+```
+
+检查安装版本：
+
+```powershell
+mini-linter --version
+pip show mini-linter
+```
+
+如果要从源码目录本地安装，建议先创建虚拟环境：
 
 ```powershell
 python -m venv .venv

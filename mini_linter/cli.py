@@ -1,6 +1,6 @@
 """
-上次修改时间: 2026-07-14-22:55
-上次修改内容: Restore UTF-8 file header metadata
+上次修改时间: 2026-07-16-00:00
+上次修改内容: Add top-level version output
 上次修改者: Agent Joe
 文件设计: CLI entry
 文件功能: Parse check command and print JSON result.
@@ -14,6 +14,7 @@ import json
 import sys
 from pathlib import Path
 
+from mini_linter import __version__
 from mini_linter.config import load_config
 from mini_linter.core import run_linter
 from mini_linter.lang import LangCatalog
@@ -79,6 +80,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="mini-linter",
         description="Check Python style, imports, architecture boundaries, and agent collaboration files.",
     )
+    parser.add_argument("--version", action="version", version=f"mini-linter {__version__}")
     subparsers = parser.add_subparsers(dest="command", metavar="command")
 
     check = subparsers.add_parser(

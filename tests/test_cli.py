@@ -1,6 +1,6 @@
 """
-上次修改时间: 2026-07-14-22:55
-上次修改内容: Restore UTF-8 file header metadata
+上次修改时间: 2026-07-16-00:00
+上次修改内容: Cover CLI version output
 上次修改者: Agent Joe
 文件设计: CLI tests
 文件功能: Verify JSON output, exit codes, help, and lang behavior.
@@ -10,6 +10,7 @@
 import json
 from pathlib import Path
 
+from mini_linter import __version__
 from mini_linter.cli import main
 
 
@@ -110,6 +111,23 @@ def test_cli_help_outputs_usage(capsys) -> None:
 
     assert "usage: mini-linter" in output
     assert "check" in output
+
+
+def test_cli_version_outputs_package_version(capsys) -> None:
+    """验证顶层 `--version` 输出包版本。
+
+    输入: `--version` 参数和 pytest capsys。
+    输出: 断言 argparse 以 0 退出并包含当前包版本。
+    """
+
+    try:
+        main(["--version"])
+    except SystemExit as exc:
+        assert exc.code == 0
+
+    output = capsys.readouterr().out
+
+    assert output.strip() == f"mini-linter {__version__}"
 
 
 def test_cli_check_help_outputs_arguments(capsys) -> None:

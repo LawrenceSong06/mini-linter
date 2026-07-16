@@ -1,6 +1,6 @@
 """
-上次修改时间: 2026-07-14-22:55
-上次修改内容: Restore UTF-8 file header metadata
+上次修改时间: 2026-07-16-00:00
+上次修改内容: Cover package metadata version sync
 上次修改者: Agent Joe
 文件设计: Configuration tests
 文件功能: Verify pyproject parsing and defaults.
@@ -9,6 +9,8 @@
 
 from pathlib import Path
 
+from mini_linter import __version__
+from mini_linter.config import tomllib
 from mini_linter.config import load_config
 
 
@@ -69,3 +71,16 @@ def test_project_default_lang_is_chinese() -> None:
     config = load_config(root / "pyproject.toml")
     
     assert config.lang == "zh_cn.json"
+
+
+def test_project_version_matches_package_version() -> None:
+    """验证 pyproject 包版本和运行时版本一致。
+
+    输入: 仓库根目录的 `pyproject.toml` 和包内 `__version__`。
+    输出: 断言 pip 读取的项目版本与 CLI 使用的版本一致。
+    """
+
+    root = Path(__file__).resolve().parents[1]
+    data = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert data["project"]["version"] == __version__
