@@ -1,9 +1,9 @@
 """
-上次修改时间: 2026-07-14-22:55
-上次修改内容: Restore UTF-8 file header metadata
+上次修改时间: 2026-07-22-00:00
+上次修改内容: Prefer linter_config.toml as default config
 上次修改者: Agent Joe
 文件设计: Configuration reader
-文件功能: Build linter configuration from pyproject.toml.
+文件功能: Build linter configuration from linter_config.toml or pyproject.toml.
 文件创建者: Agent Joe
 """
 
@@ -31,7 +31,14 @@ class LinterConfig:
 
     root: Path
     paths: tuple[str, ...] = (".",)
-    exclude: tuple[str, ...] = (".git", "__pycache__", ".pytest_cache", "build", "dist")
+    exclude: tuple[str, ...] = (
+        "**/.git/**",
+        "**/__pycache__/**",
+        "**/.pytest_cache/**",
+        "**/build/**",
+        "**/dist/**",
+        "**/.venv/**",
+    )
     lang: str | None = None
     plugins: tuple[str, ...] = ()
     fail_on: Severity = "error"
@@ -56,14 +63,14 @@ class LinterConfig:
 
 
 def load_config(config_path: Path | None = None, root: Path | None = None) -> LinterConfig:
-    """加载 pyproject.toml 中的 mini-linter 配置。
+    """加载 TOML 文件中的 mini-linter 配置。
 
     输入: 可选配置路径和项目根目录。
     输出: LinterConfig；配置文件不存在时返回默认配置。
     """
     
     project_root = (root or Path.cwd()).resolve()
-    path = (config_path or project_root / "pyproject.toml").resolve()
+    path = _default_config_path(project_root) if config_path is None else config_path.resolve()
     if not path.exists():
         return LinterConfig(root=project_root)
 
@@ -86,3 +93,18 @@ def load_config(config_path: Path | None = None, root: Path | None = None) -> Li
         rules=dict(tool_data.get("rules", {})),
         architecture=dict(tool_data.get("architecture", {})),
     )
+
+
+def _default_config_path(project_root: Path) -> Path:
+    """返回默认配置文件路径。
+
+    输入: 项目根目录。
+    输出: 优先返回 `linter_config.toml`，否则兼容 `pyproject.toml`。
+    """
+
+    linter_config = project_root / "linter_config.toml"
+    if linter_config.exists():
+        return linter_config.resolve()
+    else:
+        # else 条件: 新配置文件不存在，继续兼容旧 pyproject.toml 配置。
+        return (project_root / "pyproject.toml").resolve()

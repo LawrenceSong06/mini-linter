@@ -4,19 +4,21 @@
 
 ## 插件加载方式
 
-在目标项目的 `pyproject.toml` 中配置插件文件路径：
+推荐先运行 `mini-linter init`，再在项目根目录的 `linter_config.toml` 中配置插件文件路径：
 
 ```toml
 [tool.mini_linter]
 paths = ["."]
-lang = "zh_cn.json"
-plugins = ["tools/lint_rules.py"]
+lang = "linter/lang/zh_cn.json"
+plugins = ["linter/plugins/example.py"]
 fail_on = "error"
 ```
 
-`plugins` 中的路径相对于配置文件所在目录，也就是 mini-linter 的项目 root。
+`plugins` 中的路径相对于配置文件所在目录，也就是被检查项目的根目录。
 
 插件文件会作为可信本地 Python 代码执行。当前版本不提供沙箱隔离，因此不要加载不可信插件。
+
+如果要新增自己的插件，可以把文件放在 `linter/plugins/` 下，例如 `linter/plugins/project_rules.py`，然后把该路径加入 `plugins` 列表。
 
 ## 规则类接口
 

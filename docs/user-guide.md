@@ -37,7 +37,7 @@ pip install --upgrade --force-reinstall "git+https://github.com/LawrenceSong06/m
 如果仓库已经创建了版本 tag，也可以安装指定版本：
 
 ```powershell
-pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.1"
+pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.2"
 ```
 
 检查安装版本：
@@ -71,6 +71,20 @@ pip install -e ".[test]"
 
 ## 快速开始
 
+在项目根目录初始化配置模板：
+
+```powershell
+mini-linter init
+```
+
+该命令会创建：
+
+- `linter_config.toml`：项目根目录下的 mini-linter 配置文件。
+- `linter/lang/zh_cn.json`：中文规则输出文案。
+- `linter/lang/en_us.json`：英文规则输出文案。
+- `linter/plugins/example.py`：本地插件示例。
+- `mini-linter_README.md`：面向当前项目用户的中文使用说明。
+
 检查当前目录：
 
 ```powershell
@@ -86,7 +100,7 @@ mini-linter check mini_linter tests
 使用指定配置文件：
 
 ```powershell
-mini-linter check --config pyproject.toml
+mini-linter check --config linter_config.toml
 ```
 
 使用指定 lang 文案文件：
@@ -103,16 +117,19 @@ mini-linter check . --fail-on warning
 
 ## 命令格式
 
-`mini-linter` 当前提供 `check` 子命令：
+`mini-linter` 当前提供 `init` 和 `check` 子命令：
 
 ```powershell
+mini-linter init [--force]
 mini-linter check [paths...] [--config PATH] [--lang PATH] [--format json] [--fail-on error|warning|info]
 ```
 
 参数说明：
 
+- `init`：在项目根目录创建 `linter_config.toml`、`linter/` 模板目录和 `mini-linter_README.md`。
+- `init --force`：覆盖 mini-linter 已知模板文件；不会删除 `linter/` 中用户自己新增的其它文件。
 - `paths...`：要检查的文件或目录。不传时使用配置文件中的 `paths`。
-- `--config PATH`：指定 `pyproject.toml` 配置文件路径。不传时从当前目录查找 `pyproject.toml`。
+- `--config PATH`：指定 `linter_config.toml` 或 `pyproject.toml` 配置文件路径。不传时优先从当前目录查找 `linter_config.toml`，找不到再查找 `pyproject.toml`。
 - `--lang PATH`：指定 lang JSON 文件，用于提供 violation 的 `message` 和 `hint`。
 - `--format json`：输出格式。当前只支持 `json`。
 - `--fail-on error|warning|info`：设置失败阈值。
@@ -125,14 +142,16 @@ mini-linter check [paths...] [--config PATH] [--lang PATH] [--format json] [--fa
 
 ## 配置文件
 
-在 `pyproject.toml` 中添加 `[tool.mini_linter]` 配置：
+推荐先运行 `mini-linter init`，在项目根目录生成 `linter_config.toml`。配置文件需要放在被检查项目的根目录，因为插件路径、lang 路径和扫描路径都会相对于该根目录解析。
+
+默认配置示例：
 
 ```toml
 [tool.mini_linter]
-paths = ["mini_linter", "tests"]
-exclude = [".git", "__pycache__", ".pytest_cache", "build", "dist", ".venv"]
-lang = "zh_cn.json"
-plugins = []
+paths = ["."]
+exclude = ["**/.git/**", "**/__pycache__/**", "**/.pytest_cache/**", "**/build/**", "**/dist/**", "**/.venv/**", "**/linter/**"]
+lang = "linter/lang/zh_cn.json"
+plugins = ["linter/plugins/example.py"]
 fail_on = "error"
 
 [tool.mini_linter.rules."style.file_too_long"]
@@ -147,29 +166,48 @@ max_lines = 50
 enabled = true
 modules = ["requests"]
 
+[tool.mini_linter.rules."plugin.hello_world"]
+enabled = true
+```
+
+### 顶层字段
+
+- `paths`：要扫描的文件或目录列表。路径相对于配置文件所在的项目根目录。常见写法是 `["."]` 检查整个项目，也可以写成 `["src", "tests"]`。
+- `exclude`：要排除的路径匹配表达式列表。这里需要写完整路径模式，不要只写文件夹名。排除文件夹时请使用 `**/文件夹/**` 这种形式，例如 `**/.venv/**`、`**/build/**`、`**/__pycache__/**`。如果只写 `.venv` 或 `build`，不会可靠地排除整个目录。
+- `lang`：规则输出文案 JSON 文件路径。路径相对于项目根目录。默认模板使用 `linter/lang/zh_cn.json`，也可以改成 `linter/lang/en_us.json`。
+- `plugins`：本地插件文件路径列表。路径相对于项目根目录。插件是可信 Python 代码，会在 lint 运行时被导入执行。
+- `fail_on`：失败阈值，可选 `error`、`warning` 或 `info`。例如 `warning` 表示 warning 和 error 都会让命令返回退出码 `1`。
+
+### 规则字段
+
+每条规则都在 `[tool.mini_linter.rules."规则ID"]` 下配置。
+
+- `enabled`：是否启用该规则。设为 `false` 可以关闭某条内置规则或插件规则。
+- `max_lines`：行数限制类规则使用的阈值，例如 `style.file_too_long` 和 `style.function_too_long`。
+- `modules`：`imports.forbidden` 使用的禁用 import 列表，例如 `["requests", "os.path"]`。
+
+### 架构层级字段
+
+`architecture.layers` 用于配置项目内模块边界，适合较复杂的代码库。
+
+```toml
 [tool.mini_linter.rules."architecture.layers"]
 enabled = true
 
 [[tool.mini_linter.architecture.layers]]
-name = "core"
-paths = ["mini_linter/*.py"]
-may_import = ["rules"]
+name = "domain"
+paths = ["src/domain/*.py"]
+may_import = []
 
 [[tool.mini_linter.architecture.layers]]
-name = "rules"
-paths = ["mini_linter/rules/*.py"]
-may_import = ["core"]
+name = "app"
+paths = ["src/app/*.py"]
+may_import = ["domain"]
 ```
 
-常用字段：
-
-- `paths`：默认检查路径。
-- `exclude`：文件发现时跳过的目录或文件名。
-- `lang`：默认 lang JSON 文案文件。
-- `plugins`：可信本地插件文件列表。
-- `fail_on`：默认失败阈值，可以是 `error`、`warning` 或 `info`。
-- `rules`：按 rule id 配置规则开关和参数。
-- `architecture.layers`：配置项目内模块层级和允许依赖关系。
+- `name`：层级名称。
+- `paths`：属于该层的文件路径模式。
+- `may_import`：当前层允许 import 的其它层名称。
 
 ## JSON 输出
 

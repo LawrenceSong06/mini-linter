@@ -92,11 +92,28 @@ def _excluded(config: LinterConfig, path: Path) -> bool:
     """判断路径是否被排除。
 
     输入: 配置和候选路径。
-    输出: 匹配 exclude pattern 或目录名时返回 True。
+    输出: 匹配 exclude 路径模式时返回 True。
     """
     relative = path.relative_to(config.root).as_posix()
     
-    return any(fnmatch.fnmatch(relative, pattern) or pattern in path.parts for pattern in config.exclude)
+    return any(_matches_exclude_pattern(relative, pattern) for pattern in config.exclude)
+
+
+def _matches_exclude_pattern(relative: str, pattern: str) -> bool:
+    """判断相对路径是否匹配 exclude 模式。
+
+    输入: POSIX 相对路径和路径模式。
+    输出: 匹配时返回 True；`**/name/**` 同时支持根目录下的 `name/**`。
+    """
+
+    if fnmatch.fnmatch(relative, pattern):
+        return True
+
+    if pattern.startswith("**/") and fnmatch.fnmatch(relative, pattern[3:]):
+        return True
+    else:
+        # else 条件: 当前模式不是根目录兼容模式，或根目录兼容匹配失败。
+        return False
 
 
 def _parse_python(source: str) -> ast.AST | None:

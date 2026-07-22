@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mini-linter"
-version = "0.1.1"
+version = "0.1.2"
 description = "A compact Python linter for agent-driven projects."
 readme = "README.md"
 requires-python = ">=3.7"
@@ -36,7 +36,7 @@ addopts = ["--cov=mini_linter", "--cov-report=term-missing"]
 
 [tool.mini_linter]
 paths = ["mini_linter", "tests"]
-exclude = [".git", "__pycache__", ".pytest_cache", "build", "dist", ".venv"]
+exclude = ["**/.git/**", "**/__pycache__/**", "**/.pytest_cache/**", "**/build/**", "**/dist/**", "**/.venv/**"]
 lang = "zh_cn.json"
 plugins = []
 fail_on = "error"

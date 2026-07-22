@@ -1,6 +1,6 @@
 """
-上次修改时间: 2026-07-14-22:55
-上次修改内容: Restore UTF-8 file header metadata
+上次修改时间: 2026-07-22-00:00
+上次修改内容: Cover exclude path pattern behavior
 上次修改者: Agent Joe
 文件设计: Rule context tests
 文件功能: Verify rule pass and fail cases using sample programs.
@@ -14,6 +14,7 @@ import shutil
 from pathlib import Path
 
 from mini_linter.config import LinterConfig
+from mini_linter.core import _discover_python_files
 from mini_linter.models import RuleContext
 from mini_linter.rules.agent import AgentsGuideExistsRule, AgentsTemplatesExistRule
 from mini_linter.rules.imports import ForbiddenImportRule, LayerImportBoundaryRule
@@ -199,3 +200,21 @@ def test_agents_templates_exist_rule_context_pass_and_fail(tmp_path: Path) -> No
         (agents / name).write_text("doc", encoding="utf-8")
 
     assert rule.check(context) == []
+
+
+def test_discover_python_files_uses_exclude_path_patterns(tmp_path: Path) -> None:
+    """验证 exclude 使用路径模式排除目录。
+
+    输入: 包含 src 和 .venv 的临时项目。
+    输出: 断言 `**/.venv/**` 排除虚拟环境文件。
+    """
+
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (tmp_path / ".venv" / "Lib").mkdir(parents=True)
+    (tmp_path / ".venv" / "Lib" / "ignored.py").write_text("print('skip')\n", encoding="utf-8")
+    config = LinterConfig(root=tmp_path, paths=(".",), exclude=("**/.venv/**",))
+
+    files = _discover_python_files(config, config.paths)
+
+    assert [path.relative_to(tmp_path).as_posix() for path in files] == ["src/app.py"]

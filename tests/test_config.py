@@ -1,6 +1,6 @@
 """
-上次修改时间: 2026-07-16-00:00
-上次修改内容: Cover package metadata version sync
+上次修改时间: 2026-07-22-00:00
+上次修改内容: Cover linter_config.toml default loading
 上次修改者: Agent Joe
 文件设计: Configuration tests
 文件功能: Verify pyproject parsing and defaults.
@@ -84,3 +84,53 @@ def test_project_version_matches_package_version() -> None:
     data = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
 
     assert data["project"]["version"] == __version__
+
+
+def test_default_config_prefers_linter_config(tmp_path: Path, monkeypatch) -> None:
+    """验证默认配置优先读取 linter_config.toml。
+
+    输入: 同时包含 linter_config.toml 和 pyproject.toml 的目录。
+    输出: 断言读取 linter_config.toml 中的配置。
+    """
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "linter_config.toml").write_text(
+        """
+[tool.mini_linter]
+paths = ["src"]
+lang = "linter/lang/zh_cn.json"
+""",
+        encoding="utf-8",
+    )
+    (tmp_path / "pyproject.toml").write_text(
+        """
+[tool.mini_linter]
+paths = ["tests"]
+lang = "zh_cn.json"
+""",
+        encoding="utf-8",
+    )
+
+    config = load_config()
+
+    assert config.paths == ("src",)
+    assert config.lang == "linter/lang/zh_cn.json"
+
+
+def test_default_config_falls_back_to_pyproject(tmp_path: Path, monkeypatch) -> None:
+    """验证没有 linter_config.toml 时兼容 pyproject.toml。
+
+    输入: 只有 pyproject.toml 的目录。
+    输出: 断言读取旧配置文件。
+    """
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "pyproject.toml").write_text(
+        """
+[tool.mini_linter]
+paths = ["legacy"]
+""",
+        encoding="utf-8",
+    )
+
+    assert load_config().paths == ("legacy",)
