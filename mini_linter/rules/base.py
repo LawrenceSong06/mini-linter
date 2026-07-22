@@ -46,7 +46,7 @@ class BaseRule:
         """构造标准 violation。
 
         输入: 上下文、可选位置、details 和 severity。
-        输出: message/hint 留空、等待 lang JSON 渲染的 Violation。
+        输出: message/hint 留空、severity 等待 lang JSON 最终覆盖的 Violation。
         """
 
         data = details or {}

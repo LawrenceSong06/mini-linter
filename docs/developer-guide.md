@@ -88,7 +88,7 @@ python -m pytest tests/test_cli.py
 
 - 在 `mini_linter/rules/` 中实现规则。
 - 为规则提供稳定的 `rule_id` 和 `default_severity`。
-- 在 lang JSON 中添加 `message` 和 `hint`。
+- 在 lang JSON 中添加 `severity`、`message` 和 `hint`。
 - 添加 pass case 和 fail case。
 - 测试缺少 lang 文案时会失败，且最终输出包含渲染后的 `message` 和 `hint`。
 
@@ -113,7 +113,7 @@ python -c "import mini_linter; print(mini_linter.__version__)"
 
 ```powershell
 python -m pytest
-git tag v0.1.2
+git tag v0.1.3
 git push origin main --tags
 ```
 
@@ -126,7 +126,7 @@ pip install --upgrade --force-reinstall "git+https://github.com/LawrenceSong06/m
 也可以安装指定 tag：
 
 ```powershell
-pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.2"
+pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.3"
 ```
 
 ## 文档维护

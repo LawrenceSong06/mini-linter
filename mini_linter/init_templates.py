@@ -116,6 +116,16 @@ max_lines = 50
 [tool.mini_linter.rules."style.test_file_naming"]
 enabled = true
 
+[tool.mini_linter.rules."style.comments.file_header_required"]
+enabled = true
+
+[tool.mini_linter.rules."style.comments.public_docstring_required"]
+enabled = true
+
+[tool.mini_linter.rules."style.comments.code_block_comment_required"]
+enabled = true
+min_block_lines = 1
+
 [tool.mini_linter.rules."imports.forbidden"]
 enabled = true
 modules = []
@@ -154,39 +164,62 @@ def _zh_cn_entries() -> dict[str, dict[str, str]]:
     """返回中文规则文案。
 
     输入: 无。
-    输出: 按 rule id 索引的 message 和 hint。
+    输出: 按 rule id 索引的 severity、message 和 hint。
     """
 
     return {
         "style.file_too_long": {
+            "severity": "warning",
             "message": "文件共有 {line_count} 行，超过限制 {max_lines} 行。",
             "hint": "将该文件拆分为职责更清晰的小模块，降低单个文件的阅读和维护成本。",
         },
         "style.function_too_long": {
+            "severity": "warning",
             "message": "函数 `{name}` 共有 {line_count} 行，超过限制 {max_lines} 行。",
             "hint": "提取小的辅助函数，让控制流更清晰。",
         },
         "style.test_file_naming": {
+            "severity": "info",
             "message": "测试文件 `{filename}` 不符合命名约定。",
             "hint": "将测试文件命名为 `test_*.py`。",
         },
+        "style.comments.file_header_required": {
+            "severity": "error",
+            "message": "Python 文件 `{filename}` 缺少必需的文件头元信息字段。",
+            "hint": "在文件开头补充缺失字段：{missing_fields}。",
+        },
+        "style.comments.public_docstring_required": {
+            "severity": "error",
+            "message": "公开符号 `{name}` 缺少 docstring。",
+            "hint": "为公开函数、类或方法补充简短 docstring，说明它的作用。",
+        },
+        "style.comments.code_block_comment_required": {
+            "severity": "warning",
+            "message": "文件 `{filename}` 中的代码块前缺少说明注释。",
+            "hint": "在达到 min_block_lines 阈值的语义代码块前添加注释，说明该块负责什么。",
+        },
         "imports.forbidden": {
+            "severity": "error",
             "message": "禁止 import `{module}`。",
             "hint": "移除该依赖，或将相关能力移动到允许依赖该模块的边界层中。",
         },
         "architecture.layers": {
+            "severity": "error",
             "message": "层 `{source_layer}` 不能通过 `{module}` import 层 `{target_layer}`。",
             "hint": "将共享逻辑移动到允许依赖的层，或有意识地更新架构层级配置。",
         },
         "agent.agents_guide_exists": {
+            "severity": "error",
             "message": "缺少 `AGENTS.md`。",
             "hint": "添加 `AGENTS.md`，说明项目目标、代码风格、测试要求和 Agent 工作流程。",
         },
         "agent.templates_exist": {
+            "severity": "error",
             "message": "缺少 Agent 模板 `{template}`。",
             "hint": "创建缺失的 `.agents/` 文件，帮助后续 Agent 理解上下文并完成 review。",
         },
         "plugin.hello_world": {
+            "severity": "error",
             "message": "文件 `{filename}` 中缺少 `hello world!`。",
             "hint": "添加精确字符串 `hello world!`，或在配置中禁用 `plugin.hello_world` 示例规则。",
         },
@@ -197,39 +230,62 @@ def _en_us_entries() -> dict[str, dict[str, str]]:
     """返回英文规则文案。
 
     输入: 无。
-    输出: 按 rule id 索引的 message 和 hint。
+    输出: 按 rule id 索引的 severity、message 和 hint。
     """
 
     return {
         "style.file_too_long": {
+            "severity": "warning",
             "message": "This file has {line_count} lines, exceeding the limit of {max_lines} lines.",
             "hint": "Split this file into smaller modules with clearer responsibilities to reduce reading and maintenance cost.",
         },
         "style.function_too_long": {
+            "severity": "warning",
             "message": "Function `{name}` has {line_count} lines, exceeding the limit of {max_lines} lines.",
             "hint": "Extract small helper functions to make the control flow clearer.",
         },
         "style.test_file_naming": {
+            "severity": "info",
             "message": "Test file `{filename}` does not follow the naming convention.",
             "hint": "Name test files as `test_*.py`.",
         },
+        "style.comments.file_header_required": {
+            "severity": "error",
+            "message": "Python file `{filename}` is missing required file header metadata fields.",
+            "hint": "Add the missing header fields at the top of the file: {missing_fields}.",
+        },
+        "style.comments.public_docstring_required": {
+            "severity": "error",
+            "message": "Public symbol `{name}` is missing a docstring.",
+            "hint": "Add a short docstring to the public function, class, or method that describes its purpose.",
+        },
+        "style.comments.code_block_comment_required": {
+            "severity": "warning",
+            "message": "A code block in `{filename}` is missing an explanatory comment.",
+            "hint": "Add a comment before semantic code blocks that meet the min_block_lines threshold to explain their purpose.",
+        },
         "imports.forbidden": {
+            "severity": "error",
             "message": "Importing `{module}` is forbidden.",
             "hint": "Remove this dependency, or move the related capability into a boundary layer that is allowed to depend on this module.",
         },
         "architecture.layers": {
+            "severity": "error",
             "message": "Layer `{source_layer}` cannot import layer `{target_layer}` through `{module}`.",
             "hint": "Move shared logic to a layer that is allowed to be imported, or intentionally update the architecture layer configuration.",
         },
         "agent.agents_guide_exists": {
+            "severity": "error",
             "message": "`AGENTS.md` is missing.",
             "hint": "Add `AGENTS.md` to describe the project goals, code style, testing requirements, and Agent workflow.",
         },
         "agent.templates_exist": {
+            "severity": "error",
             "message": "Agent template `{template}` is missing.",
             "hint": "Create the missing `.agents/` file to help future Agents understand the context and complete reviews.",
         },
         "plugin.hello_world": {
+            "severity": "error",
             "message": "File `{filename}` is missing `hello world!`.",
             "hint": "Add the exact string `hello world!`, or disable the `plugin.hello_world` example rule in the config.",
         },
@@ -336,8 +392,17 @@ mini-linter check . --config linter_config.toml
 - 修改 `paths` 来决定检查哪些目录。
 - 修改 `exclude` 来排除虚拟环境、构建产物或生成文件。排除文件夹时请写成 `**/文件夹/**`，例如 `**/.venv/**`，不要只写 `.venv`。
 - 修改 `lang` 来切换中文或英文输出文案。
+- 修改 lang JSON 中每条规则的 `severity` 来调整严重度，可选 `error`、`warning` 或 `info`。
 - 修改 `plugins` 来添加或移除本地插件文件。
 - 修改 `[tool.mini_linter.rules]` 下的规则配置。
+
+## 默认注释规则
+
+模板默认启用三条注释规则：
+
+- `style.comments.file_header_required`：检查 Python 文件头是否包含必需元信息字段。
+- `style.comments.public_docstring_required`：检查公开函数、类或方法是否存在 docstring。
+- `style.comments.code_block_comment_required`：检查函数内部语义代码块前是否有说明注释。
 
 ## 更多文档
 

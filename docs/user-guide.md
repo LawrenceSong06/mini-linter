@@ -37,7 +37,7 @@ pip install --upgrade --force-reinstall "git+https://github.com/LawrenceSong06/m
 如果仓库已经创建了版本 tag，也可以安装指定版本：
 
 ```powershell
-pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.2"
+pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.3"
 ```
 
 检查安装版本：
@@ -162,6 +162,16 @@ max_lines = 300
 enabled = true
 max_lines = 50
 
+[tool.mini_linter.rules."style.comments.file_header_required"]
+enabled = true
+
+[tool.mini_linter.rules."style.comments.public_docstring_required"]
+enabled = true
+
+[tool.mini_linter.rules."style.comments.code_block_comment_required"]
+enabled = true
+min_block_lines = 1
+
 [tool.mini_linter.rules."imports.forbidden"]
 enabled = true
 modules = ["requests"]
@@ -184,6 +194,7 @@ enabled = true
 
 - `enabled`：是否启用该规则。设为 `false` 可以关闭某条内置规则或插件规则。
 - `max_lines`：行数限制类规则使用的阈值，例如 `style.file_too_long` 和 `style.function_too_long`。
+- `min_block_lines`：`style.comments.code_block_comment_required` 使用的代码块最小代码行数阈值。默认 `1`，非法值会回退为 `1`。
 - `modules`：`imports.forbidden` 使用的禁用 import 列表，例如 `["requests", "os.path"]`。
 
 ### 架构层级字段
@@ -251,19 +262,21 @@ may_import = ["domain"]
 ## Lang JSON 文案
 
 Lang 文件用于为每条规则提供最终展示的 `message` 和 `hint`。如果启用的规则缺少对应文案，检查会失败。
+从当前版本开始，Lang 文件也必须为每条规则提供 `severity`。用户可以通过修改 lang JSON 调整每条规则的严重度。
 
 示例：
 
 ```json
 {
   "style.file_too_long": {
+    "severity": "warning",
     "message": "文件共有 {line_count} 行，超过限制 {max_lines} 行。",
     "hint": "将该文件拆分为职责更清晰的小模块。"
   }
 }
 ```
 
-文案中的占位符来自规则的 `details`。例如 `line_count`、`max_lines`、`module` 等字段会在输出前被渲染到 `message` 或 `hint` 中。
+`severity` 只能是 `error`、`warning` 或 `info`。文案中的占位符来自规则的 `details`。例如 `line_count`、`max_lines`、`module` 等字段会在输出前被渲染到 `message` 或 `hint` 中。
 
 ## 内置规则
 
@@ -272,10 +285,19 @@ Lang 文件用于为每条规则提供最终展示的 `message` 和 `hint`。如
 | `style.file_too_long` | `warning` | 检查 Python 文件是否超过 `max_lines`。 |
 | `style.function_too_long` | `warning` | 检查函数或异步函数是否超过 `max_lines`。 |
 | `style.test_file_naming` | `info` | 检查 `tests` 目录下测试文件是否符合命名约定。 |
+| `style.comments.file_header_required` | `error` | 检查 Python 文件头是否包含必需元信息字段。 |
+| `style.comments.public_docstring_required` | `error` | 检查公开函数、类或方法是否存在 docstring。 |
+| `style.comments.code_block_comment_required` | `warning` | 检查函数内部语义代码块前是否有说明注释。 |
 | `imports.forbidden` | `error` | 检查是否 import 了被禁止的模块。 |
 | `architecture.layers` | `error` | 检查项目内 import 是否违反层级边界。 |
 | `agent.agents_guide_exists` | `error` | 检查项目根目录是否存在 `AGENTS.md`。 |
 | `agent.templates_exist` | `error` | 检查 `.agents/` 下必需模板是否存在。 |
+
+### 注释规则说明
+
+- `style.comments.file_header_required`：普通 Python 文件前 20 行需要包含 `上次修改时间`、`上次修改内容`、`上次修改者`、`文件设计`、`文件功能`、`文件创建者`。测试文件和 `__init__.py` 会跳过。
+- `style.comments.public_docstring_required`：公开函数、类和方法需要存在 docstring。名称以 `_` 开头的私有符号会跳过，不检查 docstring 的具体格式。
+- `style.comments.code_block_comment_required`：函数内部第一段代码块和空行后的语义代码块前需要有 `#` 注释。可以通过 `min_block_lines` 配置达到多少代码行才要求注释。该规则只检查注释是否存在，不检查注释语言。
 
 ## 插件规则
 
@@ -326,9 +348,9 @@ python -m pytest --cov=mini_linter --cov-report=term-missing
 
 项目优先支持 Agent 和自动化流程。JSON 输出稳定、结构化，便于程序读取和后续处理。
 
-### 为什么每条 violation 都必须有 message 和 hint？
+### 为什么每条 violation 都必须有 severity、message 和 hint？
 
-`message` 用于说明发现了什么问题，`hint` 用于说明下一步怎么处理。这样无论结果展示给人还是交给 Agent，都能保留足够的上下文。
+`severity` 用于控制严重度和退出码阈值，`message` 用于说明发现了什么问题，`hint` 用于说明下一步怎么处理。这样无论结果展示给人还是交给 Agent，都能保留足够的上下文。
 
 ### 可以自动修复代码吗？
 

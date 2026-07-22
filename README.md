@@ -21,7 +21,7 @@ pip install --upgrade --force-reinstall "git+https://github.com/LawrenceSong06/m
 发布版本 tag 后，也可以安装指定版本：
 
 ```powershell
-pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.2"
+pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.3"
 ```
 
 检查已安装版本：
@@ -29,6 +29,12 @@ pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.2"
 ```powershell
 mini-linter --version
 pip show mini-linter
+```
+
+查看命令帮助：
+
+```powershell
+mini-linter --help
 ```
 
 ## 快速开始

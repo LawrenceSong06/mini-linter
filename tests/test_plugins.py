@@ -56,7 +56,7 @@ class DemoPluginRule(BaseRule):
         encoding="utf-8",
     )
     (tmp_path / "lang.json").write_text(
-        '{"plugin.demo": {"message": "Plugin saw {filename}.", "hint": "Use this pattern for local custom rules."}}',
+        '{"plugin.demo": {"severity": "warning", "message": "Plugin saw {filename}.", "hint": "Use this pattern for local custom rules."}}',
         encoding="utf-8",
     )
     
@@ -66,6 +66,11 @@ class DemoPluginRule(BaseRule):
         lang="lang.json",
         plugins=("plugin_rules.py",),
         fail_on="warning",
+        rules={
+            "style.comments.file_header_required": {"enabled": False},
+            "style.comments.public_docstring_required": {"enabled": False},
+            "style.comments.code_block_comment_required": {"enabled": False},
+        },
     )
 
     result = run_linter(config)
@@ -89,16 +94,32 @@ def test_init_generated_example_plugin_checks_hello_world(tmp_path: Path) -> Non
     for name in ["context.md", "rule-authoring.md", "review-checklist.md", "task-template.md"]:
         (agents / name).write_text("doc", encoding="utf-8")
 
-    (tmp_path / "bad.py").write_text("print('missing')\n", encoding="utf-8")
+    without_hello = '''"""
+上次修改时间: 2026-07-22-00:00
+上次修改内容: Test init generated plugin
+上次修改者: Agent Joe
+文件设计: Demo
+文件功能: Demo file for plugin test.
+文件创建者: Agent Joe
+"""
+
+def run():
+    """说明函数作用。"""
+    # 准备返回值。
+    value = "missing"
+    return value
+'''
+    with_hello = without_hello.replace('"missing"', '"hello world!"')
+    (tmp_path / "bad.py").write_text(without_hello, encoding="utf-8")
     config = load_config(tmp_path / "linter_config.toml")
 
     fail_result = run_linter(config)
 
     assert not fail_result.ok
-    assert fail_result.violations[0].rule_id == "plugin.hello_world"
+    assert [item.rule_id for item in fail_result.violations] == ["plugin.hello_world"]
     assert fail_result.violations[0].details["filename"] == "bad.py"
 
-    (tmp_path / "bad.py").write_text("print('hello world!')\n", encoding="utf-8")
+    (tmp_path / "bad.py").write_text(with_hello, encoding="utf-8")
     pass_result = run_linter(config)
 
     assert pass_result.ok

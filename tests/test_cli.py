@@ -29,7 +29,7 @@ def test_cli_outputs_json_and_exit_code(tmp_path: Path, capsys) -> None:
         
     (tmp_path / "bad.py").write_text("import os\n", encoding="utf-8")
     (tmp_path / "lang.json").write_text(
-        '{"imports.forbidden": {"message": "No {module}", "hint": "Remove {module}"}}',
+        '{"imports.forbidden": {"severity": "error", "message": "No {module}", "hint": "Remove {module}"}}',
         encoding="utf-8",
     )
     (tmp_path / "pyproject.toml").write_text(
@@ -41,6 +41,15 @@ fail_on = "error"
 
 [tool.mini_linter.rules."imports.forbidden"]
 modules = ["os"]
+
+[tool.mini_linter.rules."style.comments.file_header_required"]
+enabled = false
+
+[tool.mini_linter.rules."style.comments.public_docstring_required"]
+enabled = false
+
+[tool.mini_linter.rules."style.comments.code_block_comment_required"]
+enabled = false
 """,
         encoding="utf-8",
     )
@@ -57,14 +66,14 @@ def test_cli_accepts_custom_lang(tmp_path: Path, capsys) -> None:
     """验证 CLI 可以使用自定义 lang JSON。
 
     输入: 临时项目、lang 文件和配置文件。
-    输出: 断言 message 和 hint 由 lang JSON 提供。
+    输出: 断言 severity、message 和 hint 由 lang JSON 提供。
     """
 
     (tmp_path / "bad.py").write_text("import os\n", encoding="utf-8")
 
     lang = tmp_path / "lang.json"
     lang.write_text(
-        '{"imports.forbidden": {"message": "No {module}", "hint": "Remove {module}"}}',
+        '{"imports.forbidden": {"severity": "error", "message": "No {module}", "hint": "Remove {module}"}}',
         encoding="utf-8",
     )
 
@@ -82,6 +91,15 @@ modules = ["os"]
 enabled = false
 
 [tool.mini_linter.rules."agent.templates_exist"]
+enabled = false
+
+[tool.mini_linter.rules."style.comments.file_header_required"]
+enabled = false
+
+[tool.mini_linter.rules."style.comments.public_docstring_required"]
+enabled = false
+
+[tool.mini_linter.rules."style.comments.code_block_comment_required"]
 enabled = false
 """,
         encoding="utf-8",
@@ -112,6 +130,7 @@ def test_cli_help_outputs_usage(capsys) -> None:
     assert "usage: mini-linter" in output
     assert "check" in output
     assert "init" in output
+    assert "--version" in output
 
 
 def test_cli_version_outputs_package_version(capsys) -> None:
@@ -168,6 +187,15 @@ def test_cli_init_creates_template_files(tmp_path: Path, monkeypatch, capsys) ->
     assert (tmp_path / "linter" / "plugins" / "example.py").exists()
     assert (tmp_path / "mini-linter_README.md").exists()
     assert "您好" in (tmp_path / "mini-linter_README.md").read_text(encoding="utf-8")
+    assert "style.comments.file_header_required" in (tmp_path / "linter_config.toml").read_text(encoding="utf-8")
+    zh_lang = json.loads((tmp_path / "linter" / "lang" / "zh_cn.json").read_text(encoding="utf-8"))
+    en_lang = json.loads((tmp_path / "linter" / "lang" / "en_us.json").read_text(encoding="utf-8"))
+
+    for catalog in (zh_lang, en_lang):
+        for rule_id, entry in catalog.items():
+            assert entry.get("severity") in {"error", "warning", "info"}, rule_id
+            assert entry.get("message"), rule_id
+            assert entry.get("hint"), rule_id
 
 
 def test_cli_init_refuses_existing_template_by_default(tmp_path: Path, monkeypatch, capsys) -> None:

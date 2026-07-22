@@ -1,6 +1,6 @@
 """
-上次修改时间: 2026-07-14-22:55
-上次修改内容: Restore UTF-8 file header metadata
+上次修改时间: 2026-07-22-00:00
+上次修改内容: Cover lang severity contract
 上次修改者: Agent Joe
 文件设计: Lang tests
 文件功能: Verify required lang rendering and missing text errors.
@@ -20,7 +20,7 @@ from mini_linter.rules import built_in_rules
 
 
 def test_lang_catalog_renders_message_and_hint(tmp_path: Path) -> None:
-    """验证 lang JSON 渲染 message 和 hint。
+    """验证 lang JSON 渲染 severity、message 和 hint。
 
     输入: 临时 lang 文件和 violation。
     输出: 断言模板按 details 渲染。
@@ -28,7 +28,7 @@ def test_lang_catalog_renders_message_and_hint(tmp_path: Path) -> None:
 
     lang = tmp_path / "lang.json"
     lang.write_text(
-        '{"demo.rule": {"message": "Hello {name}", "hint": "Fix {name}"}}',
+        '{"demo.rule": {"severity": "error", "message": "Hello {name}", "hint": "Fix {name}"}}',
         encoding="utf-8",
     )
     violation = Violation("demo.rule", "warning", "x.py", 1, 1, "Default", "Default hint", {"name": "code"})
@@ -37,18 +37,52 @@ def test_lang_catalog_renders_message_and_hint(tmp_path: Path) -> None:
 
     assert rendered.message == "Hello code"
     assert rendered.hint == "Fix code"
+    assert rendered.severity == "error"
 
 
 def test_lang_catalog_requires_message_and_hint(tmp_path: Path) -> None:
-    """验证没有 lang 条目时不允许输出文案。
+    """验证没有完整 lang 条目时不允许输出文案。
 
     输入: 不存在的 lang 路径和 violation。
-    输出: 断言缺少 message/hint 会抛出 ValueError。
+    输出: 断言缺少 severity/message/hint 会抛出 ValueError。
     """
     violation = Violation("demo.rule", "warning", "x.py", 1, 1, "Default", "Default hint", {})
 
     with pytest.raises(ValueError, match="demo.rule"):
         LangCatalog.load(tmp_path / "missing.json").apply(violation)
+
+
+def test_lang_catalog_requires_severity(tmp_path: Path) -> None:
+    """验证 lang 条目必须包含 severity。
+
+    输入: 缺少 severity 的 lang 文件和 violation。
+    输出: 断言渲染时抛出 ValueError。
+    """
+
+    lang = tmp_path / "lang.json"
+    lang.write_text('{"demo.rule": {"message": "Hello", "hint": "Fix"}}', encoding="utf-8")
+    violation = Violation("demo.rule", "warning", "x.py", 1, 1, "Default", "Default hint", {})
+
+    with pytest.raises(ValueError, match="severity"):
+        LangCatalog.load(lang).apply(violation)
+
+
+def test_lang_catalog_rejects_invalid_severity(tmp_path: Path) -> None:
+    """验证 lang severity 只能使用固定枚举。
+
+    输入: severity 非法的 lang 文件和 violation。
+    输出: 断言渲染时抛出 ValueError。
+    """
+
+    lang = tmp_path / "lang.json"
+    lang.write_text(
+        '{"demo.rule": {"severity": "fatal", "message": "Hello", "hint": "Fix"}}',
+        encoding="utf-8",
+    )
+    violation = Violation("demo.rule", "warning", "x.py", 1, 1, "Default", "Default hint", {})
+
+    with pytest.raises(ValueError, match="Invalid lang severity"):
+        LangCatalog.load(lang).apply(violation)
 
 
 def test_run_linter_rejects_incomplete_lang_for_output_violation(tmp_path: Path) -> None:
@@ -70,7 +104,12 @@ def test_run_linter_rejects_incomplete_lang_for_output_violation(tmp_path: Path)
         root=tmp_path,
         paths=("bad.py",),
         lang="lang.json",
-        rules={"imports.forbidden": {"modules": ["os"]}},
+        rules={
+            "imports.forbidden": {"modules": ["os"]},
+            "style.comments.file_header_required": {"enabled": False},
+            "style.comments.public_docstring_required": {"enabled": False},
+            "style.comments.code_block_comment_required": {"enabled": False},
+        },
     )
 
     with pytest.raises(ValueError, match="imports.forbidden"):
@@ -81,7 +120,7 @@ def test_default_chinese_lang_file_renders_builtin_rule() -> None:
     """验证默认中文 lang 文件可渲染内置规则文案。
 
     输入: 包内的 `mini_linter/lang/zh_cn.json` 和内置规则 violation。
-    输出: 断言中文 message 和 hint 被应用。
+    输出: 断言中文 severity、message 和 hint 被应用。
     """
     lang = Path(__file__).resolve().parents[1] / "mini_linter" / "lang" / "zh_cn.json"
     violation = Violation(
@@ -105,12 +144,29 @@ def test_default_chinese_lang_file_covers_all_builtin_rules() -> None:
     """验证默认中文 lang 文件覆盖所有内置规则。
 
     输入: 内置规则列表和 `mini_linter/lang/zh_cn.json`。
-    输出: 断言每个 rule id 都有 message 和 hint。
+    输出: 断言每个 rule id 都有 severity、message 和 hint。
     """
     lang = LangCatalog.load(Path(__file__).resolve().parents[1] / "mini_linter" / "lang" / "zh_cn.json")
     for rule in built_in_rules():
         entry = lang.entries.get(rule.id)
         assert entry is not None, rule.id
+        assert entry.get("severity") in {"error", "warning", "info"}, rule.id
+        assert entry.get("message"), rule.id
+        assert entry.get("hint"), rule.id
+
+
+def test_default_english_lang_file_covers_all_builtin_rules() -> None:
+    """验证默认英文 lang 文件覆盖所有内置规则。
+
+    输入: 内置规则列表和 `mini_linter/lang/en_us.json`。
+    输出: 断言每个 rule id 都有 severity、message 和 hint。
+    """
+
+    lang = LangCatalog.load(Path(__file__).resolve().parents[1] / "mini_linter" / "lang" / "en_us.json")
+    for rule in built_in_rules():
+        entry = lang.entries.get(rule.id)
+        assert entry is not None, rule.id
+        assert entry.get("severity") in {"error", "warning", "info"}, rule.id
         assert entry.get("message"), rule.id
         assert entry.get("hint"), rule.id
 

@@ -29,11 +29,12 @@
 
 ## Lang 文案
 
-最终输出的 message 和 hint 必须来自 lang JSON。规则类不应定义 message 和 hint 字段。lang JSON 文件必须按 rule id 提供文案：
+最终输出的 severity、message 和 hint 必须来自 lang JSON。规则类不应定义最终 message 和 hint 字段。lang JSON 文件必须按 rule id 提供文案：
 
 ```json
 {
   "style.file_too_long": {
+    "severity": "warning",
     "message": "File has {line_count} lines; max is {max_lines}.",
     "hint": "Split this file into smaller modules."
   }
@@ -42,9 +43,9 @@
 
 新增或修改规则时，需要同步更新测试，证明：
 
-- 缺少 lang 文案时会失败；
+- 缺少 lang severity 或文案时会失败；
 - lang JSON 文案可以正确渲染；
-- violation 始终包含 `message` 和 `hint`。
+- violation 始终包含 `severity`、`message` 和 `hint`。
 
 ## 内置规则要求
 

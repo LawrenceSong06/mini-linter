@@ -96,7 +96,7 @@ return [
 ]
 ```
 
-每个最终输出的 violation 必须包含 `message` 和 `hint`。当前实现会强制从 lang JSON 中读取最终文案；规则类不应定义 `message` 和 `hint` 字段。
+每个最终输出的 violation 必须包含 `severity`、`message` 和 `hint`。当前实现会强制从 lang JSON 中读取最终严重度和文案；规则类不应定义最终 `message` 和 `hint` 字段。
 
 ## 配置插件规则
 
@@ -115,11 +115,12 @@ options = context.config.rule_options(self.id)
 
 ## 提供中文文案
 
-插件规则必须通过 lang JSON 提供最终文案：
+插件规则必须通过 lang JSON 提供最终严重度和文案：
 
 ```json
 {
   "project.no_print": {
+    "severity": "warning",
     "message": "文件 `{filename}` 使用了 print。",
     "hint": "改用 logger，或返回结构化数据交给调用方处理。"
   }

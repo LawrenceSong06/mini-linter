@@ -1,6 +1,6 @@
 """
-上次修改时间: 2026-07-14-22:55
-上次修改内容: Restore UTF-8 file header metadata
+上次修改时间: 2026-07-22-00:00
+上次修改内容: Read severity from lang catalog
 上次修改者: Agent Joe
 文件设计: Required language catalog
 文件功能: Load lang JSON and render violation text.
@@ -14,15 +14,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from mini_linter.models import Violation
+from mini_linter.models import SEVERITY_ORDER, Violation
 
 
 @dataclass(frozen=True)
 class LangCatalog:
-    """保存按 rule id 索引的强制文案。
+    """保存按 rule id 索引的强制输出文案和严重度。
 
     输入: lang JSON 解析后的 entries。
-    输出: 对 violation 应用必需的 message 和 hint。
+    输出: 对 violation 应用必需的 severity、message 和 hint。
     """
 
     entries: dict[str, dict[str, str]]
@@ -47,18 +47,22 @@ class LangCatalog:
         """将 lang JSON 文案应用到 violation。
 
         输入: 原始 violation。
-        输出: 文案被 lang JSON 渲染后的 violation；缺少文案时抛出 ValueError。
+        输出: lang JSON 渲染后的 violation；缺少字段时抛出 ValueError。
         """
         entry = self.entries.get(violation.rule_id)
-        if not entry or "message" not in entry or "hint" not in entry:
-            raise ValueError(f"Missing lang message/hint for rule: {violation.rule_id}")
+        if not entry or "severity" not in entry or "message" not in entry or "hint" not in entry:
+            raise ValueError(f"Missing lang severity/message/hint for rule: {violation.rule_id}")
+
+        severity = entry["severity"]
+        if severity not in SEVERITY_ORDER:
+            raise ValueError(f"Invalid lang severity for rule: {violation.rule_id}")
         
         message = _render(entry["message"], violation.details)
         hint = _render(entry["hint"], violation.details)
         
         return Violation(
             rule_id=violation.rule_id,
-            severity=violation.severity,
+            severity=severity,
             path=violation.path,
             line=violation.line,
             column=violation.column,

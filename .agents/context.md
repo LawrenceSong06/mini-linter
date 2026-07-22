@@ -13,10 +13,10 @@
 
 ## 核心概念
 
-- `Violation` 表示一条检查结果，必须包含 `message` 和 `hint`。
+- `Violation` 表示一条检查结果，必须包含 `severity`、`message` 和 `hint`。
 - `RuleContext` 是传给每条规则的输入，包含项目路径、文件文本、可用时的 AST、配置和完整文件列表。
 - 规则是一个类，包含 `id`、`default_severity` 和 `check(context)`。
-- Lang JSON 文件按 rule id 提供规则最终输出的 `message` 和 `hint` 文案；缺失时检查会失败。
+- Lang JSON 文件按 rule id 提供规则最终输出的 `severity`、`message` 和 `hint`；缺失时检查会失败。
 - CLI 输出 JSON，Agent 不需要解析终端文本就能读取结果。
 
 ## 实现分层
