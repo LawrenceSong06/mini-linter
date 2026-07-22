@@ -1,66 +1,68 @@
 # mini-linter
 
-`mini-linter` is a compact Python CLI linter for Agent-driven projects. It checks Python style, import dependencies, architecture boundaries, and Agent collaboration files, then prints JSON output that tools and LLM Agents can parse directly.
+`mini-linter` 是一个面向 Agent 驱动项目的紧凑型 Python CLI linter。它用于检查 Python 代码风格、import 依赖、架构边界和 Agent 协作文件，并输出便于工具和 LLM Agent 直接解析的 JSON 结果。
 
-## Installation
+## 安装
 
-Install the latest version from GitHub:
+从 GitHub 安装最新版本：
 
 ```powershell
 pip install "git+https://github.com/LawrenceSong06/mini-linter.git"
 ```
 
-Upgrade to the latest GitHub version:
+升级到 GitHub 最新版本：
 
 ```powershell
 pip install --upgrade --force-reinstall "git+https://github.com/LawrenceSong06/mini-linter.git"
 ```
 
-Install a specific Git tag when releases are tagged:
+发布版本 tag 后，也可以安装指定版本：
 
 ```powershell
 pip install "git+https://github.com/LawrenceSong06/mini-linter.git@v0.1.1"
 ```
 
-Verify the installed version:
+检查已安装版本：
 
 ```powershell
 mini-linter --version
 pip show mini-linter
 ```
 
-## Quick Start
+## 快速开始
 
-Run checks against the current project:
+检查当前项目：
 
 ```powershell
 mini-linter check .
 ```
 
-Use a project config:
+使用项目配置：
 
 ```powershell
 mini-linter check --config pyproject.toml
 ```
 
-Treat warnings as failures:
+`mini-linter` 的配置文件需要放在被检查项目的根目录，通常就是项目根目录下的 `pyproject.toml`。
+
+将 warning 也视为失败：
 
 ```powershell
 mini-linter check . --fail-on warning
 ```
 
-## Documentation
+## 文档
 
-- [User Guide](docs/user-guide.md): usage, configuration, JSON output, built-in rules, and CI examples.
-- [Developer Guide](docs/developer-guide.md): local setup, tests, architecture, release/version workflow, and contribution notes.
-- [Plugin Rule Guide](docs/plugins.md): writing and configuring local plugin rules.
+- [用户指南](docs/user-guide.md)：使用方式、配置、JSON 输出、内置规则和 CI 示例。
+- [开发者指南](docs/developer-guide.md)：本地环境、测试、架构、发布/版本流程和贡献说明。
+- [插件规则指南](docs/plugins.md)：编写和配置本地插件规则。
 
-## Requirements
+## 环境要求
 
-- Python 3.7 or newer.
-- Python 3.11+ uses the standard-library TOML parser.
-- Python 3.7-3.10 installs `tomli` automatically as the TOML parser fallback.
+- Python 3.7 或更高版本。
+- Python 3.11+ 使用标准库 TOML 解析器。
+- Python 3.7-3.10 会自动安装 `tomli` 作为 TOML 解析兼容依赖。
 
-## Versioning
+## 版本
 
-The package version is stored in both `pyproject.toml` and `mini_linter.__version__`. Keep them synchronized before publishing or tagging a new GitHub release so pip and users can detect version changes.
+包版本同时保存在 `pyproject.toml` 和 `mini_linter.__version__` 中。发布新版本或创建 GitHub release tag 前，请保持两处版本号同步，这样 pip 和用户才能检测到版本变化。
